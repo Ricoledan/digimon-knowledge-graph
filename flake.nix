@@ -15,43 +15,29 @@
           # Web Scraping
           beautifulsoup4
           requests
-          aiohttp
           lxml
-          
-          # Translation
-          googletrans
-          deep-translator
           
           # Data Processing
           pandas
           numpy
-          spacy
           
           # Graph Database
           neo4j
-          py2neo
           
           # Analysis & Visualization
           networkx
           matplotlib
-          seaborn
-          plotly
           
           # Utilities
           python-dotenv
           pyyaml
           tqdm
-          loguru
-          tenacity
           
           # Image Processing
           pillow
           
           # Development
           pytest
-          pytest-asyncio
-          ipykernel
-          jupyter
           black
           ipython
         ];
@@ -74,8 +60,7 @@
             # Node.js for any web visualizations
             nodejs_20
             
-            # Database tools
-            cypher-shell
+            # Database tools (cypher-shell is included with neo4j)
           ];
           
           shellHook = ''
@@ -83,6 +68,21 @@
             echo "Python: $(python --version)"
             echo "Neo4j: $(neo4j --version 2>/dev/null || echo 'Use docker-compose')"
             echo ""
+            echo "Installing additional Python packages from requirements.txt..."
+            echo ""
+            
+            # Create virtual environment if it doesn't exist
+            if [ ! -d .venv ]; then
+              echo "Creating Python virtual environment..."
+              python -m venv .venv
+            fi
+            
+            # Activate virtual environment
+            source .venv/bin/activate
+            
+            # Install packages from requirements.txt
+            pip install -r requirements.txt --quiet
+            
             echo "Quick start:"
             echo "  docker-compose up -d    # Start Neo4j"
             echo "  python -m pytest        # Run tests"

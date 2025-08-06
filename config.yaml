@@ -1,0 +1,99 @@
+project:
+  name: "Digimon Knowledge Graph"
+  version: "1.0.0"
+  author: "Ricardo Ledan"
+  email: "ricardoledan@proton.me"
+
+scraping:
+  base_url: "https://digimon.net/reference/"
+  delay: 1.0  # Seconds between requests
+  timeout: 30  # Request timeout in seconds
+  max_retries: 3
+  retry_delay: 5  # Seconds between retries
+  user_agent: "Mozilla/5.0 (compatible; DigimonKGBot/1.0; +https://github.com/yourusername/digimon-kg)"
+  concurrent_requests: 3  # For async scraping
+  respect_robots_txt: true
+  
+parsing:
+  selectors:
+    name_main: ".c-titleSet__main"
+    name_sub: ".c-titleSet__sub"  # May contain English name
+    level: ".digimon-level"  # TBD after investigation
+    type: ".digimon-type"    # TBD after investigation
+    attribute: ".digimon-attribute"  # TBD after investigation
+    moves: ".digimon-moves"  # TBD after investigation
+    profile: ".digimon-profile"  # TBD after investigation
+    evolution: ".digimon-evolution"  # TBD after investigation
+    image: "img.digimon-image"  # TBD after investigation
+
+translation:
+  provider: "googletrans"  # or "deepl", "custom"
+  source_language: "ja"
+  target_language: "en"
+  batch_size: 50
+  cache_enabled: true
+  cache_file: "data/translations/cache.json"
+  
+neo4j:
+  uri: "${NEO4J_URI}"
+  user: "${NEO4J_USER}"
+  password: "${NEO4J_PASSWORD}"
+  database: "neo4j"  # Default database
+  batch_size: 1000
+  connection_timeout: 30
+  
+paths:
+  data_dir: "./data"
+  raw_html: "./data/raw/html"
+  raw_images: "./data/raw/images"
+  processed_data: "./data/processed/digimon"
+  cache_dir: "./data/cache"
+  logs_dir: "./logs"
+  
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "json"  # or "text"
+  file_rotation: "1 day"
+  retention: "7 days"
+  
+  handlers:
+    console:
+      enabled: true
+      level: "INFO"
+    file:
+      enabled: true
+      level: "DEBUG"
+      path: "./logs/digimon_kg.log"
+    
+analysis:
+  metrics:
+    - "degree_centrality"
+    - "betweenness_centrality"
+    - "clustering_coefficient"
+    - "pagerank"
+    - "community_detection"
+  
+  visualization:
+    default_layout: "force_directed"
+    node_size_attribute: "degree"
+    edge_weight_attribute: "weight"
+    color_by: "type"  # or "attribute", "level", "community"
+    
+validation:
+  required_fields:
+    - "name"
+    - "level"
+    - "type"
+    - "attribute"
+  
+  field_constraints:
+    level:
+      values: ["Baby", "In-Training", "Rookie", "Champion", "Ultimate", "Mega"]
+    attribute:
+      values: ["Vaccine", "Data", "Virus", "Free", "Unknown"]
+      
+backup:
+  enabled: true
+  schedule: "daily"  # or "hourly", "weekly"
+  retention_days: 7
+  path: "./backups"

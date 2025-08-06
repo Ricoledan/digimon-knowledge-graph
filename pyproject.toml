@@ -1,0 +1,60 @@
+[tool.poetry]
+name = "digimon-knowledge-graph"
+version = "1.0.0"
+description = "A comprehensive knowledge graph from digimon.net/reference"
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+packages = [{include = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+beautifulsoup4 = "^4.12.3"
+requests = "^2.31.0"
+aiohttp = "^3.9.5"
+lxml = "^5.2.1"
+googletrans = "^4.0.0-rc1"
+deep-translator = "^1.11.4"
+pandas = "^2.2.2"
+numpy = "^1.26.4"
+spacy = "^3.7.4"
+neo4j = "^5.19.0"
+py2neo = "^2021.2.4"
+networkx = "^3.3"
+matplotlib = "^3.8.4"
+seaborn = "^0.13.2"
+plotly = "^5.22.0"
+python-dotenv = "^1.0.1"
+pyyaml = "^6.0.1"
+tqdm = "^4.66.4"
+loguru = "^0.7.2"
+tenacity = "^8.3.0"
+pillow = "^10.3.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.0"
+pytest-asyncio = "^0.23.6"
+ipykernel = "^6.29.4"
+jupyter = "^1.0.0"
+black = "^24.4.2"
+ruff = "^0.4.0"
+mypy = "^1.10.0"
+pre-commit = "^3.7.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "W", "C90", "I", "N", "D", "UP", "B", "C4", "SIM", "RET"]
+ignore = ["D203", "D213"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true

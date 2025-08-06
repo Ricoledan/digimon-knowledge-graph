@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  neo4j:
+    image: neo4j:5.19.0-community
+    container_name: digimon-neo4j
+    ports:
+      - "7474:7474"  # HTTP
+      - "7687:7687"  # Bolt
+    volumes:
+      - ./data/neo4j/data:/data
+      - ./data/neo4j/logs:/logs
+      - ./data/neo4j/import:/var/lib/neo4j/import
+      - ./data/neo4j/plugins:/plugins
+    environment:
+      - NEO4J_AUTH=neo4j/digimon123  # Change in production
+      - NEO4J_PLUGINS=["apoc", "graph-data-science"]
+      - NEO4J_dbms_memory_pagecache_size=1G
+      - NEO4J_dbms_memory_heap_max__size=1G
+      - NEO4J_dbms_memory_heap_initial__size=1G
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*,gds.*
+      - NEO4J_dbms_security_procedures_allowlist=apoc.*,gds.*
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "digimon123", "RETURN 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
+
+networks:
+  digimon-network:
+    driver: bridge
+
+volumes:
+  neo4j-data:
+  neo4j-logs:

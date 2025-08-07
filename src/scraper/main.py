@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Main entry point for the Digimon scraper."""
 
+import argparse
 import asyncio
 import sys
+import time
 from pathlib import Path
 
 from loguru import logger
@@ -16,31 +18,59 @@ from src.utils.config import config
 
 def main():
     """Run the scraper."""
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="Scrape Digimon data from digimon.net")
+    parser.add_argument(
+        "--use-api-urls",
+        action="store_true",
+        help="Use URLs generated from API fetch instead of scraping index"
+    )
+    parser.add_argument(
+        "--fetch-api-first",
+        action="store_true",
+        help="Fetch data via API before scraping individual pages"
+    )
+    args = parser.parse_args()
+    
     logger.info("Starting Digimon Knowledge Graph Scraper")
+    
+    # If requested, fetch via API first
+    if args.fetch_api_first:
+        logger.info("Fetching data via API first...")
+        from src.scraper.api_fetcher import DigimonAPIFetcher
+        api_fetcher = DigimonAPIFetcher()
+        api_fetcher.fetch_all_digimon()
+        args.use_api_urls = True  # Automatically use the generated URLs
     
     # Check if we should use async
     use_async = config.get("scraping.concurrent_requests", 1) > 1
     
     scraper = DigimonScraper()
     
+    # Track timing
+    start_time = time.time()
+    
     try:
         if use_async:
             logger.info("Using async scraping for better performance")
-            summary = asyncio.run(scraper.scrape_all_async())
+            logger.info(f"Starting at {time.strftime('%Y-%m-%d %H:%M:%S')}")
+            summary = asyncio.run(scraper.scrape_all_async(use_api_urls=args.use_api_urls))
         else:
             logger.info("Using synchronous scraping")
-            summary = scraper.scrape_all()
+            logger.info(f"Starting at {time.strftime('%Y-%m-%d %H:%M:%S')}")
+            summary = scraper.scrape_all(use_api_urls=args.use_api_urls)
             
-        # Report results
-        logger.info(f"Scraping completed!")
-        logger.info(f"Total URLs: {summary['total']}")
-        logger.info(f"Successful: {summary['success']}")
-        logger.info(f"Failed: {summary['failed']}")
+        # Calculate duration
+        duration = time.time() - start_time
+        minutes, seconds = divmod(int(duration), 60)
+        hours, minutes = divmod(minutes, 60)
         
-        if summary['failed_urls']:
-            logger.warning("Failed URLs:")
-            for url, error in summary['failed_urls']:
-                logger.warning(f"  - {url}: {error}")
+        # Report results
+        logger.info(f"\nScraping completed in {hours}h {minutes}m {seconds}s")
+        logger.info(f"Average time per URL: {duration/summary['total']:.2f}s")
+        
+        # Summary already logged by fetcher, just add timing info
+        logger.info(f"Finished at {time.strftime('%Y-%m-%d %H:%M:%S')}")
                 
     except KeyboardInterrupt:
         logger.warning("Scraping interrupted by user")

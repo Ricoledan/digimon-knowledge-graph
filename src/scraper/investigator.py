@@ -18,6 +18,7 @@ class StructureInvestigator:
     def __init__(self):
         """Initialize investigator."""
         self.base_url = config.get("scraping.base_url")
+        self.index_url = "https://digimon.net/reference/index.php"
         self.headers = {
             "User-Agent": config.get("scraping.user_agent"),
             "Accept-Language": "ja,en;q=0.9"
@@ -27,7 +28,7 @@ class StructureInvestigator:
         """Fetch a sample page for investigation."""
         if not url:
             # Try to fetch index first to get a sample URL
-            url = self.base_url
+            url = self.index_url
             
         try:
             response = requests.get(url, headers=self.headers, timeout=30)
@@ -145,9 +146,14 @@ class StructureInvestigator:
         if url.startswith('http'):
             return url
         elif url.startswith('/'):
-            return f"{self.base_url.rstrip('/')}{url}"
+            # Use the index URL's base for absolute paths
+            from urllib.parse import urlparse
+            parsed = urlparse(self.index_url)
+            base = f"{parsed.scheme}://{parsed.netloc}"
+            return f"{base}{url}"
         else:
-            return f"{self.base_url.rstrip('/')}/{url}"
+            # For relative paths, use the index URL's directory
+            return f"{self.index_url.rsplit('/', 1)[0]}/{url}"
             
     def _is_english(self, text: str) -> bool:
         """Check if text is primarily English."""

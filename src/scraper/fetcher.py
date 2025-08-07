@@ -1,4 +1,5 @@
 import asyncio
+import json
 import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -13,6 +14,7 @@ from tqdm import tqdm
 
 from ..utils.config import config
 from ..utils.file_utils import ensure_directory, sanitize_filename
+from .robots_checker import RobotsChecker
 
 
 class DigimonScraper:
@@ -21,11 +23,22 @@ class DigimonScraper:
     def __init__(self):
         """Initialize scraper with configuration."""
         self.base_url = config.get("scraping.base_url")
+        self.index_url = "https://digimon.net/reference/index.php"
         self.delay = config.get("scraping.delay", 1.0)
         self.timeout = config.get("scraping.timeout", 30)
         self.max_retries = config.get("scraping.max_retries", 3)
         self.user_agent = config.get("scraping.user_agent")
         self.concurrent_requests = config.get("scraping.concurrent_requests", 3)
+        self.respect_robots = config.get("scraping.respect_robots_txt", True)
+        
+        # Initialize robots.txt checker
+        if self.respect_robots:
+            self.robots_checker = RobotsChecker(self.base_url, self.user_agent)
+            # Update delay based on robots.txt if specified
+            robots_delay = self.robots_checker.get_crawl_delay()
+            if robots_delay and robots_delay > self.delay:
+                logger.info(f"Updating crawl delay from {self.delay}s to {robots_delay}s based on robots.txt")
+                self.delay = robots_delay
         
         # Paths
         self.html_dir = Path(config.get("paths.raw_html"))
@@ -79,27 +92,59 @@ class DigimonScraper:
             logger.error(f"Error fetching {url}: {e}")
             return url, None
             
-    def get_digimon_urls(self) -> List[str]:
-        """Extract all Digimon detail page URLs from the index."""
-        logger.info("Fetching Digimon index page...")
+    def get_digimon_urls(self, use_api_urls: bool = False) -> List[str]:
+        """Extract all Digimon detail page URLs from the index.
+        
+        Args:
+            use_api_urls: If True, use URLs from API fetch instead of scraping index
+        """
+        # Check if we should use API-generated URLs
+        if use_api_urls:
+            api_urls_file = self.html_dir / "_all_digimon_urls.json"
+            if api_urls_file.exists():
+                logger.info(f"Loading URLs from API fetch: {api_urls_file}")
+                with open(api_urls_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    urls = data.get('urls', [])
+                    logger.info(f"Loaded {len(urls)} URLs from API fetch")
+                    return urls
+            else:
+                logger.warning(f"API URLs file not found: {api_urls_file}")
+                logger.info("Falling back to index page scraping")
+        
+        logger.info(f"Fetching Digimon index page from {self.index_url}")
+        
+        # Check if we can fetch the index page according to robots.txt
+        if self.respect_robots and not self.robots_checker.can_fetch(self.index_url):
+            logger.error(f"Robots.txt disallows fetching the index page: {self.index_url}")
+            return []
         
         try:
-            html = self.fetch_page(self.base_url)
+            html = self.fetch_page(self.index_url)
             if not html:
                 raise ValueError("Failed to fetch index page")
                 
             soup = BeautifulSoup(html, 'lxml')
             
+            # Save index page for investigation
+            index_path = self.html_dir / "_index.html"
+            with open(index_path, 'w', encoding='utf-8') as f:
+                f.write(html)
+            logger.info(f"Saved index page to {index_path}")
+            
             # Find all Digimon links
-            # This selector might need adjustment based on actual HTML structure
+            # Based on the URL pattern, looking for links to detail pages
             digimon_links = []
             
             # Try multiple possible selectors
             selectors = [
+                'a[href*="detail.php"]',  # Common pattern for detail pages
                 'a[href*="/detail/"]',
-                'a.digimon-link',
+                'a[href*="?id="]',        # Query parameter pattern
                 '.digimon-list a',
-                'a[href*="digimon"]'
+                '.list a',
+                'table a',                # Often in tables
+                'a[href^="detail"]'       # Relative links starting with detail
             ]
             
             for selector in selectors:
@@ -109,13 +154,50 @@ class DigimonScraper:
                     for link in links:
                         href = link.get('href')
                         if href:
-                            full_url = urljoin(self.base_url, href)
+                            # Convert relative URLs to absolute
+                            full_url = urljoin(self.index_url, href)
+                            # Only add if it's actually a detail page
+                            if 'detail' in full_url or 'id=' in full_url:
+                                digimon_links.append(full_url)
+                    if digimon_links:  # If we found links, stop trying other selectors
+                        break
+                        
+            # If no specific selectors worked, try a broader approach
+            if not digimon_links:
+                logger.info("Trying broader link search...")
+                all_links = soup.find_all('a', href=True)
+                for link in all_links:
+                    href = link.get('href')
+                    full_url = urljoin(self.index_url, href)
+                    # Look for patterns that might indicate detail pages
+                    if any(pattern in full_url for pattern in ['detail', 'digimon', 'id=', 'name=']):
+                        # Exclude common non-detail pages
+                        if not any(exclude in full_url for exclude in ['index', 'list', 'search', 'login', 'register']):
                             digimon_links.append(full_url)
-                    break
                     
-            # Deduplicate
-            digimon_links = list(set(digimon_links))
+            # Deduplicate and sort
+            digimon_links = sorted(list(set(digimon_links)))
             logger.info(f"Found {len(digimon_links)} unique Digimon URLs")
+            
+            # Check robots.txt compliance for all URLs
+            if self.respect_robots and digimon_links:
+                logger.info("Checking robots.txt compliance for all URLs...")
+                compliance = self.robots_checker.check_compliance(digimon_links)
+                logger.info(f"Robots.txt compliance: {compliance['allowed']} allowed, {compliance['disallowed']} disallowed")
+                
+                if compliance['disallowed'] > 0:
+                    logger.warning(f"Removing {compliance['disallowed']} disallowed URLs")
+                    digimon_links = compliance['allowed_urls']
+            
+            # Save URL list for reference
+            urls_file = self.html_dir / "_urls.json"
+            with open(urls_file, 'w', encoding='utf-8') as f:
+                json.dump({
+                    'index_url': self.index_url,
+                    'total_urls': len(digimon_links),
+                    'urls': digimon_links
+                }, f, indent=2, ensure_ascii=False)
+            logger.info(f"Saved URL list to {urls_file}")
             
             return digimon_links
             
@@ -180,9 +262,9 @@ class DigimonScraper:
             logger.error(f"Error downloading image {image_url}: {e}")
             return None
             
-    def scrape_all(self) -> Dict[str, any]:
+    def scrape_all(self, use_api_urls: bool = False) -> Dict[str, any]:
         """Scrape all Digimon pages synchronously."""
-        urls = self.get_digimon_urls()
+        urls = self.get_digimon_urls(use_api_urls=use_api_urls)
         
         if not urls:
             logger.error("No URLs found to scrape")
@@ -199,6 +281,12 @@ class DigimonScraper:
         with tqdm(total=len(urls), desc="Scraping") as pbar:
             for url in urls:
                 try:
+                    # Check robots.txt compliance
+                    if self.respect_robots and not self.robots_checker.can_fetch(url):
+                        logger.warning(f"Skipping {url} - disallowed by robots.txt")
+                        self.failed_urls.append((url, "Disallowed by robots.txt"))
+                        continue
+                    
                     # Respect rate limit
                     time.sleep(self.delay)
                     
@@ -234,15 +322,14 @@ class DigimonScraper:
         logger.info(f"Scraping complete: {summary['success']}/{summary['total']} successful")
         
         # Save summary
-        import json
         with open(self.html_dir.parent / "scrape_summary.json", 'w') as f:
             json.dump(summary, f, indent=2)
             
         return summary
         
-    async def scrape_all_async(self) -> Dict[str, any]:
+    async def scrape_all_async(self, use_api_urls: bool = False) -> Dict[str, any]:
         """Scrape all Digimon pages asynchronously for better performance."""
-        urls = self.get_digimon_urls()
+        urls = self.get_digimon_urls(use_api_urls=use_api_urls)
         
         if not urls:
             logger.error("No URLs found to scrape")
@@ -254,35 +341,107 @@ class DigimonScraper:
             }
             
         logger.info(f"Starting async scrape of {len(urls)} Digimon pages...")
+        logger.info(f"Configuration: {self.concurrent_requests} concurrent requests, {self.delay}s delay")
+        
+        # Reset counters
+        self.scraped_urls = []
+        self.failed_urls = []
         
         # Create semaphore for rate limiting
         semaphore = asyncio.Semaphore(self.concurrent_requests)
         
-        async def fetch_with_delay(session, url):
+        async def fetch_with_delay(session, url, pbar):
             async with semaphore:
+                # Check robots.txt compliance
+                if self.respect_robots and not self.robots_checker.can_fetch(url):
+                    logger.warning(f"Skipping {url} - disallowed by robots.txt")
+                    self.failed_urls.append((url, "Disallowed by robots.txt"))
+                    pbar.update(1)
+                    return url, None
+                
                 result = await self.fetch_page_async(session, url)
                 await asyncio.sleep(self.delay)
+                
+                # Update progress with status
+                url_str, content = result
+                if content:
+                    pbar.set_postfix({"last": url_str.split('=')[-1][:20], "success": len(self.scraped_urls)})
+                else:
+                    pbar.set_postfix({"last": "Failed", "success": len(self.scraped_urls)})
+                pbar.update(1)
+                
                 return result
                 
         # Create session and fetch all pages
-        async with aiohttp.ClientSession(headers=self.headers) as session:
-            tasks = [fetch_with_delay(session, url) for url in urls]
-            
-            # Process with progress bar
+        async with aiohttp.ClientSession(headers=self.headers, timeout=aiohttp.ClientTimeout(total=self.timeout)) as session:
+            # Process in batches to show progress
+            batch_size = 50  # Process in smaller batches for better progress updates
             results = []
-            with tqdm(total=len(tasks), desc="Fetching pages") as pbar:
-                for coro in asyncio.as_completed(tasks):
-                    result = await coro
-                    results.append(result)
-                    pbar.update(1)
+            
+            with tqdm(total=len(urls), desc="Scraping Digimon pages", unit="pages") as pbar:
+                for i in range(0, len(urls), batch_size):
+                    batch_urls = urls[i:i + batch_size]
+                    batch_tasks = [fetch_with_delay(session, url, pbar) for url in batch_urls]
                     
-        # Process results
-        for url, html in results:
-            if html:
-                self.save_html(url, html)
-                self.scraped_urls.append(url)
-            else:
-                self.failed_urls.append((url, "Failed to fetch"))
+                    # Wait for batch to complete
+                    batch_results = await asyncio.gather(*batch_tasks, return_exceptions=True)
+                    
+                    # Process results
+                    for result in batch_results:
+                        if isinstance(result, Exception):
+                            logger.error(f"Exception in batch: {result}")
+                            continue
+                        results.append(result)
+                    
+        # Process results and save files
+        logger.info("Processing and saving scraped data...")
+        
+        with tqdm(total=len(results), desc="Saving HTML files", unit="files") as save_pbar:
+            for url, html in results:
+                if html:
+                    try:
+                        # Save HTML
+                        file_path = self.save_html(url, html)
+                        self.scraped_urls.append(url)
+                        
+                        # Try to extract and download image
+                        soup = BeautifulSoup(html, 'lxml')
+                        
+                        # Find image - try multiple selectors
+                        img_selectors = [
+                            'img.c-digimon__image',
+                            'img[alt*="digimon" i]',
+                            '.digimon-image img',
+                            'article img',
+                            'main img[src*="/cimages/digimon/"]'
+                        ]
+                        
+                        img_tag = None
+                        for selector in img_selectors:
+                            img_tag = soup.select_one(selector)
+                            if img_tag and img_tag.get('src'):
+                                break
+                        
+                        if img_tag and img_tag.get('src'):
+                            img_url = urljoin(url, img_tag['src'])
+                            
+                            # Get Digimon name for image filename
+                            name_elem = soup.select_one('.c-titleSet__main')
+                            if name_elem:
+                                name = name_elem.text.strip()
+                                self.download_image(img_url, name)
+                                
+                        save_pbar.set_postfix({"saved": len(self.scraped_urls)})
+                        
+                    except Exception as e:
+                        logger.error(f"Error processing {url}: {e}")
+                        self.failed_urls.append((url, str(e)))
+                        
+                elif url:  # URL exists but no content
+                    if not any(url in failed[0] for failed in self.failed_urls):
+                        self.failed_urls.append((url, "No content returned"))
+                        
+                save_pbar.update(1)
                 
         # Summary
         summary = {
@@ -292,6 +451,22 @@ class DigimonScraper:
             "failed_urls": self.failed_urls
         }
         
-        logger.info(f"Async scraping complete: {summary['success']}/{summary['total']} successful")
+        # Save summary
+        with open(self.html_dir.parent / "scrape_summary.json", 'w') as f:
+            json.dump(summary, f, indent=2)
+        
+        # Final report
+        logger.info("="*60)
+        logger.info(f"Async scraping complete!")
+        logger.info(f"Total URLs: {summary['total']}")
+        logger.info(f"Successfully scraped: {summary['success']} ({summary['success']/summary['total']*100:.1f}%)")
+        logger.info(f"Failed: {summary['failed']}")
+        
+        if summary['failed'] > 0:
+            logger.info(f"\nFirst 10 failed URLs:")
+            for url, error in self.failed_urls[:10]:
+                logger.info(f"  - {url}: {error}")
+                
+        logger.info("="*60)
         
         return summary

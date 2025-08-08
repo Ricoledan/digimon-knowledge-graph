@@ -29,6 +29,11 @@ tqdm = "^4.66.4"
 loguru = "^0.7.2"
 tenacity = "^8.3.0"
 pillow = "^10.3.0"
+click = "^8.1.7"
+rich = "^13.7.1"
+
+[tool.poetry.scripts]
+yggdrasil = "yggdrasil_cli:cli"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.0"

@@ -6,48 +6,65 @@ Get the Digimon Knowledge Graph up and running in 5 minutes!
 
 ```bash
 # Check if you have everything needed
-./scripts/setup/check_requirements.sh
+docker --version     # Docker required
+nix --version        # Nix recommended
+python --version     # Python 3.11+
 ```
 
-## Option 1: Interactive Setup (Recommended)
+## Option 1: Quickest Setup (Recommended)
 
 ```bash
-# Just run this and follow the menu
-./scripts/run.sh
+# Enter Nix environment
+nix develop
+
+# Install CLI 
+pip install -e .
+
+# Run everything
+ygg init
 ```
 
-Select these options in order:
-1. **Option 1** - Initial setup
-2. **Option 8** - Investigate HTML structure  
-3. **Option 9** - Run scraper
-4. **Option 11** - Run analysis
+This will:
+1. Start Neo4j database
+2. Scrape all Digimon data
+3. Parse and translate everything
+4. Load into Neo4j
+5. Run analysis
 
-## Option 2: Command Line Setup
+## Option 2: Step-by-Step Setup
 
 ```bash
-# 1. Initial setup (installs dependencies & starts Neo4j)
-./scripts/setup/init.sh
+# 1. Enter Nix environment
+nix develop
 
-# 2. Investigate website structure
-./scripts/scraping/investigate_structure.sh
+# 2. Install CLI
+pip install -e .
 
-# 3. Start scraping
-./scripts/scraping/run_scraper.sh
+# 3. Check status
+ygg status
 
-# 4. Load data into Neo4j (once parser is implemented)
-python -m src.graph.loader
+# 4. Start Neo4j
+ygg start
 
-# 5. Run analysis
-./scripts/analysis/run_analysis.sh
+# 5. Run pipeline
+ygg run
 ```
 
-## Option 3: Developer Quick Start
+## Option 3: Manual Control
 
 ```bash
-# For developers who want more control
-./scripts/dev.sh start     # Start Neo4j
-./scripts/dev.sh shell     # Python REPL with imports
-./scripts/dev.sh backup    # Backup database
+# Run individual steps
+ygg start        # Start Neo4j
+ygg scrape       # Scrape data (~40-50 min)
+ygg parse        # Parse HTML (~5 min)
+ygg translate    # Translate (~60-90 min)  
+ygg load         # Load to Neo4j (~5 min)
+ygg analyze      # Run analysis
+
+# Other commands
+ygg status       # Check progress
+ygg prune        # Clean up data
+ygg logs         # View Neo4j logs
 
 # Or use the traditional way
 source venv/bin/activate   # or: poetry shell / nix develop

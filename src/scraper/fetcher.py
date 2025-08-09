@@ -3,7 +3,7 @@ import json
 import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse, parse_qs
 
 import aiohttp
 import requests
@@ -209,13 +209,31 @@ class DigimonScraper:
         """Save HTML content to file."""
         # Extract ID from URL
         parsed = urlparse(url)
-        path_parts = parsed.path.strip('/').split('/')
         
-        # Use last part of URL as ID, or generate from full path
-        if path_parts and path_parts[-1]:
-            digimon_id = sanitize_filename(path_parts[-1])
+        # Check for query parameters first (e.g., ?directory_name=nyabootmon)
+        if parsed.query:
+            # Parse query parameters
+            params = parse_qs(parsed.query)
+            
+            # Look for common parameter names
+            digimon_id = None
+            for param_name in ['directory_name', 'name', 'id', 'digimon']:
+                if param_name in params and params[param_name]:
+                    digimon_id = sanitize_filename(params[param_name][0])
+                    break
+            
+            # If no ID found in params, use the whole query string
+            if not digimon_id:
+                digimon_id = sanitize_filename(parsed.query)
         else:
-            digimon_id = sanitize_filename('_'.join(path_parts))
+            # Original logic for path-based URLs
+            path_parts = parsed.path.strip('/').split('/')
+            
+            # Use last part of URL as ID, or generate from full path
+            if path_parts and path_parts[-1]:
+                digimon_id = sanitize_filename(path_parts[-1])
+            else:
+                digimon_id = sanitize_filename('_'.join(path_parts))
             
         file_path = self.html_dir / f"{digimon_id}.html"
         
@@ -365,9 +383,10 @@ class DigimonScraper:
                 # Update progress with status
                 url_str, content = result
                 if content:
-                    pbar.set_postfix({"last": url_str.split('=')[-1][:20], "success": len(self.scraped_urls)})
+                    digimon_name = url_str.split('=')[-1][:20] if '=' in url_str else 'unknown'
+                    pbar.set_postfix({"current": digimon_name, "status": "fetched"})
                 else:
-                    pbar.set_postfix({"last": "Failed", "success": len(self.scraped_urls)})
+                    pbar.set_postfix({"current": "failed", "status": "error"})
                 pbar.update(1)
                 
                 return result
@@ -378,7 +397,7 @@ class DigimonScraper:
             batch_size = 50  # Process in smaller batches for better progress updates
             results = []
             
-            with tqdm(total=len(urls), desc="Scraping Digimon pages", unit="pages") as pbar:
+            with tqdm(total=len(urls), desc="Fetching HTML content", unit="pages") as pbar:
                 for i in range(0, len(urls), batch_size):
                     batch_urls = urls[i:i + batch_size]
                     batch_tasks = [fetch_with_delay(session, url, pbar) for url in batch_urls]
@@ -396,6 +415,9 @@ class DigimonScraper:
         # Process results and save files
         logger.info("Processing and saving scraped data...")
         
+        saved_count = 0
+        failed_saves = 0
+        
         with tqdm(total=len(results), desc="Saving HTML files", unit="files") as save_pbar:
             for url, html in results:
                 if html:
@@ -403,6 +425,7 @@ class DigimonScraper:
                         # Save HTML
                         file_path = self.save_html(url, html)
                         self.scraped_urls.append(url)
+                        saved_count += 1
                         
                         # Try to extract and download image
                         soup = BeautifulSoup(html, 'lxml')
@@ -431,11 +454,12 @@ class DigimonScraper:
                                 name = name_elem.text.strip()
                                 self.download_image(img_url, name)
                                 
-                        save_pbar.set_postfix({"saved": len(self.scraped_urls)})
+                        save_pbar.set_postfix({"saved": saved_count, "failed": failed_saves})
                         
                     except Exception as e:
                         logger.error(f"Error processing {url}: {e}")
                         self.failed_urls.append((url, str(e)))
+                        failed_saves += 1
                         
                 elif url:  # URL exists but no content
                     if not any(url in failed[0] for failed in self.failed_urls):
@@ -457,13 +481,16 @@ class DigimonScraper:
         
         # Final report
         logger.info("="*60)
-        logger.info(f"Async scraping complete!")
-        logger.info(f"Total URLs: {summary['total']}")
-        logger.info(f"Successfully scraped: {summary['success']} ({summary['success']/summary['total']*100:.1f}%)")
-        logger.info(f"Failed: {summary['failed']}")
+        logger.info(f"Scraping complete!")
+        logger.info(f"Total URLs processed: {summary['total']}")
+        logger.info(f"Successfully fetched: {len(results)}")
+        logger.info(f"Successfully saved: {summary['success']} ({summary['success']/summary['total']*100:.1f}% of total)")
+        logger.info(f"Failed to fetch: {summary['total'] - len(results)}")
+        logger.info(f"Failed to save: {len(results) - summary['success']}")
+        logger.info(f"Total failures: {summary['failed']}")
         
         if summary['failed'] > 0:
-            logger.info(f"\nFirst 10 failed URLs:")
+            logger.info(f"\nFailure details (first 10):")
             for url, error in self.failed_urls[:10]:
                 logger.info(f"  - {url}: {error}")
                 

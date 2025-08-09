@@ -6,11 +6,11 @@ import json
 from pathlib import Path
 from datetime import datetime
 
-print("🦖 DIGIMON KNOWLEDGE GRAPH - PIPELINE STATUS")
+print("DIGIMON KNOWLEDGE GRAPH - PIPELINE STATUS")
 print("=" * 60)
 
 # Check environment
-print("\n📦 ENVIRONMENT:")
+print("\nENVIRONMENT:")
 print(f"  Working directory: {os.getcwd()}")
 print(f"  Python executable: {os.sys.executable}")
 
@@ -23,40 +23,40 @@ dirs_to_check = {
     "Cache": "data/cache"
 }
 
-print("\n📁 DATA DIRECTORIES:")
+print("\nDATA DIRECTORIES:")
 for name, path in dirs_to_check.items():
     p = Path(path)
     if p.exists():
         files = list(p.glob("*.*"))
         files = [f for f in files if not f.name.startswith("_")]
-        print(f"  {name}: ✅ {len(files)} files")
+        print(f"  {name}: [OK] {len(files)} files")
     else:
-        print(f"  {name}: ❌ Not found")
+        print(f"  {name}: [MISSING] Not found")
 
 # Check URLs file
-print("\n🔗 DIGIMON URLs:")
+print("\nDIGIMON URLS:")
 urls_file = Path("data/raw/html/_all_digimon_urls.json")
 if urls_file.exists():
     with open(urls_file) as f:
         data = json.load(f)
-        print(f"  Total URLs: ✅ {data['total_urls']} Digimon found")
+        print(f"  Total URLs: [OK] {data['total_urls']} Digimon found")
 else:
-    print("  URLs file: ❌ Not found")
+    print("  URLs file: [MISSING] Not found")
 
 # Check scraped data
-print("\n🕷️  SCRAPED DATA:")
+print("\nSCRAPED DATA:")
 html_files = list(Path("data/raw/html").glob("*.html"))
 html_files = [f for f in html_files if not f.name.startswith("_")]
 print(f"  HTML files: {len(html_files)} scraped")
 
 # Check parsed data
-print("\n📋 PARSED DATA:")
+print("\nPARSED DATA:")
 json_files = list(Path("data/processed/digimon").glob("*.json"))
 json_files = [f for f in json_files if not f.name.startswith("_")]
 print(f"  JSON files: {len(json_files)} parsed")
 
 # Check translated data
-print("\n🌐 TRANSLATED DATA:")
+print("\nTRANSLATED DATA:")
 trans_dir = Path("data/translated")
 if trans_dir.exists():
     trans_files = list(trans_dir.glob("*.json"))
@@ -70,7 +70,7 @@ if trans_dir.exists():
         print(f"  Test translations: {len(test_files)}")
 
 # Check cache
-print("\n💾 TRANSLATION CACHE:")
+print("\nTRANSLATION CACHE:")
 cache_file = Path("data/cache/translations.json")
 if cache_file.exists():
     with open(cache_file) as f:
@@ -80,7 +80,7 @@ else:
     print("  Cache: Not found")
 
 # Pipeline status
-print("\n🚀 PIPELINE STATUS:")
+print("\nPIPELINE STATUS:")
 steps = [
     ("1. URL Discovery", len(html_files) > 0 or urls_file.exists()),
     ("2. HTML Scraping", len(html_files) > 0),
@@ -91,11 +91,11 @@ steps = [
 ]
 
 for step, completed in steps:
-    status = "✅ Ready" if completed else "⏳ Pending"
+    status = "[READY]" if completed else "[PENDING]"
     print(f"  {step}: {status}")
 
 # Next steps
-print("\n📝 NEXT STEPS:")
+print("\nNEXT STEPS:")
 if len(html_files) < 100:  # Assuming we want all 1,249
     print("  1. Run full scraper: python -m src.scraper.main --fetch-api-first")
 elif len(json_files) < len(html_files):

@@ -21,28 +21,30 @@ This project builds a comprehensive knowledge graph from digimon.net/reference t
 
 ### Initial Setup
 ```bash
-./scripts/run.sh  # Interactive menu for all operations
+# Enter development environment
+nix develop
+
+# Install CLI
+pip install -e .
+
+# First time setup
+ygg init  # Starts Neo4j and runs full pipeline
 ```
 
 ### Data Pipeline
 ```bash
-# 1. Investigate HTML structure (✅ COMPLETE)
-./scripts/scraping/investigate_structure.sh
+# Check current status
+ygg status
 
-# 2. Run the full scraper (~40-50 minutes for all 1,249 Digimon)
-python -m src.scraper.main --fetch-api-first
+# Run full pipeline (~2-3 hours total)
+ygg run
 
-# 3. Parse HTML to extract structured data
-python -m src.parser.main
-
-# 4. Process and translate data
-python -m src.processor.main
-
-# 5. Load into Neo4j
-python -m src.graph.loader
-
-# 6. Run analysis
-python -m src.analysis.main
+# Or run individual steps:
+ygg scrape       # ~40-50 minutes for all 1,249 Digimon
+ygg parse        # ~5 minutes
+ygg translate    # ~60-90 minutes
+ygg load         # ~5 minutes
+ygg analyze      # Quick
 ```
 
 ### Quick Test Commands
@@ -65,8 +67,13 @@ ruff check src/
 mypy src/
 
 # Neo4j operations
-./scripts/database/start_neo4j.sh
-./scripts/database/backup_neo4j.sh
+ygg start        # Start Neo4j
+ygg stop         # Stop Neo4j
+ygg logs         # View Neo4j logs
+ygg db-status    # Check Neo4j status
+
+# Data management
+ygg prune        # Clean up data files
 ```
 
 ## Architecture
@@ -191,23 +198,18 @@ Translations provided:
 
 ## Full Pipeline Command Sequence
 ```bash
-# 1. Scrape all Digimon (this will take ~40-50 minutes)
-python -m src.scraper.main --fetch-api-first
+# Option 1: Run everything at once
+ygg init  # First time (starts Neo4j + full pipeline)
+# or
+ygg run   # If Neo4j is already running
 
-# 2. Parse all HTML files
-python -m src.parser.main
-
-# 3. Translate all data
-python -m src.processor.main
-
-# 4. Start Neo4j (if not running)
-./scripts/database/start_neo4j.sh
-
-# 5. Load into Neo4j
-python -m src.graph.loader
-
-# 6. Run analysis
-python -m src.analysis.main
+# Option 2: Run steps individually
+ygg start        # Start Neo4j
+ygg scrape       # Scrape all Digimon (~40-50 minutes)
+ygg parse        # Parse all HTML files
+ygg translate    # Translate all data
+ygg load         # Load into Neo4j
+ygg analyze      # Run analysis
 ```
 
 ## Notes for Claude

@@ -65,13 +65,12 @@ def cli():
     
     \b
     Quick Start:
-      ygg init         # First time? Start here
+      ygg start        # Start Neo4j database
       ygg status       # Check current progress
       ygg run          # Run data pipeline (no analysis)
     
     \b
     All Commands:
-      ygg init         # Initialize everything (Neo4j + pipeline)
       ygg start        # Start Neo4j database
       ygg stop         # Stop Neo4j database
       ygg status       # Check pipeline status
@@ -570,44 +569,6 @@ def run(skip_scrape):
     console.print("\n[bold green]Pipeline execution complete[/bold green]")
 
 
-@cli.command()
-def init():
-    """Initialize and run everything (Neo4j + full pipeline)."""
-    console.print("\n[bold]INITIALIZING DIGIMON KNOWLEDGE GRAPH[/bold]")
-    console.print("-" * 60)
-    
-    cli_instance = YggdrasilCLI()
-    
-    # Start Neo4j if not running
-    if not cli_instance.check_neo4j_status():
-        console.print("\n[bold]Starting Neo4j...[/bold]")
-        subprocess.run(["docker-compose", "up", "-d"], check=True)
-        console.print("[green]Neo4j started[/green]")
-        console.print("Waiting for Neo4j to be ready...")
-        import time
-        time.sleep(10)
-    
-    # Run the full pipeline
-    console.print("\n[bold]Running full pipeline...[/bold]")
-    steps = [
-        ("Scraping", [sys.executable, "-m", "src.scraper.main", "--fetch-api-first"]),
-        ("Parsing", [sys.executable, "-m", "src.parser.main"]),
-        ("Translating", [sys.executable, "-m", "src.processor.main"]),
-        ("Loading to Neo4j", [sys.executable, "-m", "src.graph.loader"]),
-        ("Running Analysis", [sys.executable, "-m", "src.analysis.main"]),
-    ]
-    
-    for step_name, cmd in steps:
-        console.print(f"\n[bold]{step_name}...[/bold]")
-        try:
-            subprocess.run(cmd, check=True)
-            console.print(f"[green]{step_name} completed[/green]")
-        except subprocess.CalledProcessError as e:
-            console.print(f"[red]{step_name} failed: {e}[/red]")
-            break
-    
-    console.print("\n[bold green]Initialization complete[/bold green]")
-
 
 @cli.command()
 def interactive():
@@ -616,10 +577,10 @@ def interactive():
     console.print("-" * 60)
     console.print("\nThis interactive mode has been replaced by the new CLI commands.")
     console.print("\nAvailable commands:")
-    console.print("  [cyan]ygg init[/cyan]      - Initialize everything and run")
+    console.print("  [cyan]ygg start[/cyan]     - Start Neo4j database")
     console.print("  [cyan]ygg status[/cyan]    - Check pipeline status")
     console.print("  [cyan]ygg run[/cyan]       - Run complete pipeline")
-    console.print("  [cyan]ygg start[/cyan]     - Start Neo4j database")
+    console.print("  [cyan]ygg analyze[/cyan]   - Run analysis")
     console.print("  [cyan]ygg prune[/cyan]     - Clean up data files")
     console.print("\nRun [cyan]ygg --help[/cyan] for all commands")
 

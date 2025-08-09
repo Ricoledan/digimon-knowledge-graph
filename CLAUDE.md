@@ -28,7 +28,8 @@ nix develop
 pip install -e .
 
 # First time setup
-ygg init  # Starts Neo4j and runs full pipeline
+ygg start  # Start Neo4j
+ygg run    # Run full pipeline
 ```
 
 ### Data Pipeline
@@ -200,9 +201,8 @@ Translations provided:
 ## Full Pipeline Command Sequence
 ```bash
 # Option 1: Run data pipeline (without analysis)
-ygg init  # First time (starts Neo4j + data pipeline)
-# or
-ygg run   # If Neo4j is already running (data pipeline only)
+ygg start  # Start Neo4j if not running
+ygg run    # Run data pipeline
 
 # Option 2: Run steps individually
 ygg start        # Start Neo4j

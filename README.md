@@ -559,4 +559,4 @@ Ricardo Ledan <ricardoledan@proton.me>
 ## Acknowledgments
 
 - Data source: [digimon.net/reference](https://digimon.net/reference/)
-- Built with Neo4j, Python, and lots of coffee
+- Built with Claude, Neo4j, Python, and Cafe Bustelo coffee

@@ -319,9 +319,12 @@ class DigimonScraper:
                         img_tag = soup.select_one('img.digimon-image, img[alt*="digimon"]')
                         if img_tag and img_tag.get('src'):
                             img_url = urljoin(url, img_tag['src'])
-                            name = soup.select_one('.c-titleSet__main')
-                            if name:
-                                self.download_image(img_url, name.text.strip())
+                            # Get directory name from URL
+                            parsed_url = urlparse(url)
+                            params = parse_qs(parsed_url.query)
+                            directory_name = params.get('directory_name', ['unknown'])[0]
+                            if directory_name != 'unknown':
+                                self.download_image(img_url, directory_name)
                                 
                 except Exception as e:
                     logger.error(f"Failed to scrape {url}: {e}")
@@ -448,11 +451,12 @@ class DigimonScraper:
                         if img_tag and img_tag.get('src'):
                             img_url = urljoin(url, img_tag['src'])
                             
-                            # Get Digimon name for image filename
-                            name_elem = soup.select_one('.c-titleSet__main')
-                            if name_elem:
-                                name = name_elem.text.strip()
-                                self.download_image(img_url, name)
+                            # Get Digimon name from URL for image filename
+                            parsed_url = urlparse(url)
+                            params = parse_qs(parsed_url.query)
+                            directory_name = params.get('directory_name', ['unknown'])[0]
+                            if directory_name != 'unknown':
+                                self.download_image(img_url, directory_name)
                                 
                         save_pbar.set_postfix({"saved": saved_count, "failed": failed_saves})
                         

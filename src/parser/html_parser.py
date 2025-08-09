@@ -71,21 +71,33 @@ class DigimonParser:
             if english_name_elem:
                 data["names"]["english"] = english_name_elem.text.strip()
                 
-            # 2. Extract main image
-            main_img = soup.select_one('.p-ref__picitem img')
-            if main_img and main_img.get('src'):
-                # Convert relative URL to absolute URL
-                img_src = main_img['src']
-                if img_src.startswith('../'):
-                    # Remove '../' and construct full URL
-                    img_src = img_src.lstrip('../')
-                    data["images"]["main"] = f"https://digimon.net/{img_src}"
-                elif img_src.startswith('http'):
-                    # Already absolute URL
-                    data["images"]["main"] = img_src
-                else:
-                    # Assume it's relative from root
-                    data["images"]["main"] = f"https://digimon.net/{img_src.lstrip('/')}"
+            # 2. Extract main image and additional images
+            image_items = soup.select('.p-ref__picitem img')
+            if image_items:
+                # Extract all images
+                images = []
+                for idx, img in enumerate(image_items):
+                    if img.get('src'):
+                        img_src = img['src']
+                        if img_src.startswith('../'):
+                            # Remove '../' and construct full URL
+                            img_src = img_src.replace('../', '')
+                            full_url = f"https://digimon.net/{img_src}"
+                        elif img_src.startswith('http'):
+                            # Already absolute URL
+                            full_url = img_src
+                        else:
+                            # Assume it's relative from root
+                            full_url = f"https://digimon.net/{img_src.lstrip('/')}"
+                        
+                        images.append(full_url)
+                
+                # Set main image (first one)
+                if images:
+                    data["images"]["main"] = images[0]
+                    # Store additional images if any
+                    if len(images) > 1:
+                        data["images"]["additional"] = images[1:]
                 
             # 3. Extract info fields (level, type, attribute, moves)
             info_section = soup.select('.p-ref__info dl')
@@ -158,7 +170,7 @@ class DigimonParser:
                     if img_elem and img_elem.get('src'):
                         img_src = img_elem['src']
                         if img_src.startswith('../'):
-                            img_src = img_src.lstrip('../')
+                            img_src = img_src.replace('../', '')
                             related_data["image_url"] = f"https://digimon.net/{img_src}"
                         elif img_src.startswith('http'):
                             related_data["image_url"] = img_src

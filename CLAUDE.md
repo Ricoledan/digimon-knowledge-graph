@@ -36,7 +36,7 @@ ygg init  # Starts Neo4j and runs full pipeline
 # Check current status
 ygg status
 
-# Run full pipeline (~2-3 hours total)
+# Run data pipeline (~2-3 hours total, no analysis)
 ygg run
 
 # Or run individual steps:
@@ -44,7 +44,7 @@ ygg scrape       # ~40-50 minutes for all 1,249 Digimon
 ygg parse        # ~5 minutes
 ygg translate    # ~60-90 minutes
 ygg load         # ~5 minutes
-ygg analyze      # Quick
+ygg analyze      # Run analysis separately
 ```
 
 ### Quick Test Commands
@@ -74,6 +74,7 @@ ygg db-status    # Check Neo4j status
 
 # Data management
 ygg prune        # Clean up data files
+ygg prune --include-neo4j  # Clean up data files AND Neo4j database
 ```
 
 ## Architecture
@@ -198,10 +199,10 @@ Translations provided:
 
 ## Full Pipeline Command Sequence
 ```bash
-# Option 1: Run everything at once
-ygg init  # First time (starts Neo4j + full pipeline)
+# Option 1: Run data pipeline (without analysis)
+ygg init  # First time (starts Neo4j + data pipeline)
 # or
-ygg run   # If Neo4j is already running
+ygg run   # If Neo4j is already running (data pipeline only)
 
 # Option 2: Run steps individually
 ygg start        # Start Neo4j
@@ -209,7 +210,7 @@ ygg scrape       # Scrape all Digimon (~40-50 minutes)
 ygg parse        # Parse all HTML files
 ygg translate    # Translate all data
 ygg load         # Load into Neo4j
-ygg analyze      # Run analysis
+ygg analyze      # Run analysis (separate command)
 ```
 
 ## Notes for Claude

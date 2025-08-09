@@ -248,8 +248,8 @@ ygg analyze
 # Stop Neo4j
 ygg stop
 
-# Clean everything
-ygg prune
+# Clean everything including Neo4j database
+ygg prune --include-neo4j
 
 # Start fresh
 ygg init
@@ -464,6 +464,7 @@ ygg run          # Run complete pipeline
 ygg start        # Start Neo4j database
 ygg stop         # Stop Neo4j database
 ygg prune        # Clean up data files
+ygg prune --include-neo4j  # Clean data AND Neo4j
 ygg --help       # Show all commands
 ```
 
@@ -527,8 +528,9 @@ ygg analyze             # 5. Analyze (1 min)
 
 ### Maintenance
 ```bash
-ygg prune               # Clean all data
+ygg prune               # Clean all data files
 ygg prune --keep-cache  # Keep translations
+ygg prune --include-neo4j  # Clean everything
 ygg logs                # View Neo4j logs
 ygg db-status           # Check database
 ```

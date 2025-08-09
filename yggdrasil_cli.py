@@ -67,7 +67,7 @@ def cli():
     Quick Start:
       ygg init         # First time? Start here
       ygg status       # Check current progress
-      ygg run          # Run the full pipeline
+      ygg run          # Run data pipeline (no analysis)
     
     \b
     All Commands:
@@ -80,8 +80,9 @@ def cli():
       ygg translate    # Translate to English
       ygg load         # Load into Neo4j
       ygg analyze      # Run analysis
-      ygg run          # Run full pipeline
+      ygg run          # Run data pipeline (scrape→parse→translate→load)
       ygg prune        # Clean up data files
+      ygg prune --include-neo4j  # Clean everything including Neo4j
       ygg logs         # View Neo4j logs
       ygg db-status    # Check Neo4j status
     
@@ -122,7 +123,8 @@ def status(check_only):
 @click.option("--confirm", is_flag=True, help="Skip confirmation prompt")
 @click.option("--keep-cache", is_flag=True, help="Keep translation cache")
 @click.option("--keep-raw", is_flag=True, help="Keep raw HTML and images")
-def prune(confirm, keep_cache, keep_raw):
+@click.option("--include-neo4j", is_flag=True, help="Also clear Neo4j database")
+def prune(confirm, keep_cache, keep_raw, include_neo4j):
     """Prune collected data locally.
     
     Removes data files to free up disk space. By default, removes:
@@ -134,11 +136,12 @@ def prune(confirm, keep_cache, keep_raw):
     
     \b
     Examples:
-      ygg data prune                    # Interactive pruning
-      ygg data prune --confirm          # Skip confirmation
-      ygg data prune --keep-cache       # Keep translation cache
-      ygg data prune --keep-raw         # Keep HTML and images
-      ygg data prune --keep-cache --keep-raw  # Only remove processed data
+      ygg prune                         # Interactive pruning
+      ygg prune --confirm               # Skip confirmation
+      ygg prune --keep-cache            # Keep translation cache
+      ygg prune --keep-raw              # Keep HTML and images
+      ygg prune --include-neo4j         # Also clear Neo4j database
+      ygg prune --confirm --include-neo4j  # Clear everything including Neo4j
     """
     console.print("\n[bold]DATA PRUNING[/bold]")
     console.print("-" * 60)
@@ -181,6 +184,10 @@ def prune(confirm, keep_cache, keep_raw):
             prune_targets.append(("Cache files", cache, size))
             total_size += size
     
+    # Check if Neo4j should be included
+    if include_neo4j:
+        prune_targets.append(("Neo4j database", None, 0))
+    
     # Display what will be pruned
     table = Table(title="Data to be pruned")
     table.add_column("Type", style="cyan", no_wrap=True)
@@ -188,10 +195,14 @@ def prune(confirm, keep_cache, keep_raw):
     table.add_column("Size", justify="right", style="green")
     
     for name, path, size in prune_targets:
-        table.add_row(name, str(path), f"{size / 1024 / 1024:.2f} MB")
+        if name == "Neo4j database":
+            table.add_row(name, "All nodes and relationships", "N/A")
+        else:
+            table.add_row(name, str(path), f"{size / 1024 / 1024:.2f} MB")
     
-    table.add_row("", "", "")
-    table.add_row("[bold]Total", "[bold]", f"[bold]{total_size / 1024 / 1024:.2f} MB")
+    if total_size > 0:
+        table.add_row("", "", "")
+        table.add_row("[bold]Total files", "[bold]", f"[bold]{total_size / 1024 / 1024:.2f} MB")
     
     console.print(table)
     
@@ -209,7 +220,23 @@ def prune(confirm, keep_cache, keep_raw):
     console.print("\n[bold]Pruning data...[/bold]")
     for name, path, size in track(prune_targets, description="Pruning"):
         try:
-            if path.is_dir():
+            if name == "Neo4j database":
+                # Clear Neo4j database
+                if cli_instance.check_neo4j_status():
+                    result = subprocess.run(
+                        ["docker", "exec", "digimon-neo4j", "cypher-shell", 
+                         "-u", "neo4j", "-p", "digimon123", 
+                         "MATCH (n) DETACH DELETE n"],
+                        capture_output=True,
+                        text=True
+                    )
+                    if result.returncode == 0:
+                        console.print(f"[green]Cleared Neo4j database[/green]")
+                    else:
+                        console.print(f"[red]Failed to clear Neo4j: {result.stderr}[/red]")
+                else:
+                    console.print(f"[yellow]Neo4j not running, skipping database clear[/yellow]")
+            elif path and path.is_dir():
                 shutil.rmtree(path)
                 console.print(f"[green]Removed {name}[/green]")
         except Exception as e:
@@ -499,24 +526,25 @@ def analyze():
 @cli.command()
 @click.option("--skip-scrape", is_flag=True, help="Skip scraping if data exists")
 def run(skip_scrape):
-    """Run the complete pipeline end-to-end.
+    """Run the data pipeline (scrape → parse → translate → load).
     
-    Executes all pipeline steps in sequence:
+    Executes the data collection and processing pipeline:
     1. Scrape data from digimon.net (40-50 min)
     2. Parse HTML files (5 min)
     3. Translate to English (60-90 min)
     4. Load into Neo4j (5 min)
-    5. Run analysis (quick)
+    
+    Note: Analysis is run separately with 'ygg analyze'
     
     \b
     Total estimated time: 2-3 hours
     
     \b
     Examples:
-      ygg run               # Full pipeline
+      ygg run               # Full data pipeline
       ygg run --skip-scrape # Skip scraping step
     """
-    console.print("\n[bold]RUNNING COMPLETE PIPELINE[/bold]")
+    console.print("\n[bold]RUNNING DATA PIPELINE[/bold]")
     console.print("-" * 60)
     
     steps = [
@@ -524,7 +552,6 @@ def run(skip_scrape):
         ("Parsing", [sys.executable, "-m", "src.parser.main"], True),
         ("Translating", [sys.executable, "-m", "src.processor.main"], True),
         ("Loading to Neo4j", [sys.executable, "-m", "src.graph.loader"], True),
-        ("Running Analysis", [sys.executable, "-m", "src.analysis.main"], True),
     ]
     
     for step_name, cmd, should_run in steps:

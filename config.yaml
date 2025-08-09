@@ -30,7 +30,8 @@ translation:
   provider: "googletrans"  # or "deepl", "custom"
   source_language: "ja"
   target_language: "en"
-  batch_size: 50
+  batch_size: 10
+  rate_limit_delay: 1.0
   cache_enabled: true
   cache_file: "data/translations/cache.json"
   

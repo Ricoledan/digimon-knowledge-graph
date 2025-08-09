@@ -64,7 +64,7 @@
           ];
           
           shellHook = ''
-            echo "🦖 Digimon Knowledge Graph Development Environment"
+            echo "Digimon Knowledge Graph Development Environment"
             echo "Python: $(python --version)"
             echo "Neo4j: $(neo4j --version 2>/dev/null || echo 'Use docker-compose')"
             echo ""

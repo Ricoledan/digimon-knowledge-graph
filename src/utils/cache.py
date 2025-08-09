@@ -160,3 +160,30 @@ class TranslationCache(Cache):
         """Force save cache to file."""
         self._save_cache()
         logger.info(f"Saved {len(self._cache)} translations to cache")
+
+
+class CacheManager:
+    """Simple cache manager for translations."""
+    
+    def __init__(self, cache_name: str = "translations"):
+        """Initialize cache manager."""
+        cache_dir = Path("data/cache")
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        self.cache_file = cache_dir / f"{cache_name}.json"
+        self.cache = TranslationCache(self.cache_file)
+        
+    def get(self, key: str) -> Optional[str]:
+        """Get value from cache."""
+        return self.cache.get(key)
+        
+    def set(self, key: str, value: str) -> None:
+        """Set value in cache."""
+        self.cache.set(key, value)
+        self.cache.save()  # Save immediately for translations
+        
+    def get_stats(self) -> Dict[str, int]:
+        """Get cache statistics."""
+        return {
+            "total_entries": len(self.cache._cache),
+            "cache_file": str(self.cache_file)
+        }

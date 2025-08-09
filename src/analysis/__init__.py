@@ -1,0 +1,1 @@
+"""Analysis module for Digimon knowledge graph."""

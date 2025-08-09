@@ -74,7 +74,18 @@ class DigimonParser:
             # 2. Extract main image
             main_img = soup.select_one('.p-ref__picitem img')
             if main_img and main_img.get('src'):
-                data["images"]["main"] = main_img['src']
+                # Convert relative URL to absolute URL
+                img_src = main_img['src']
+                if img_src.startswith('../'):
+                    # Remove '../' and construct full URL
+                    img_src = img_src.lstrip('../')
+                    data["images"]["main"] = f"https://digimon.net/{img_src}"
+                elif img_src.startswith('http'):
+                    # Already absolute URL
+                    data["images"]["main"] = img_src
+                else:
+                    # Assume it's relative from root
+                    data["images"]["main"] = f"https://digimon.net/{img_src.lstrip('/')}"
                 
             # 3. Extract info fields (level, type, attribute, moves)
             info_section = soup.select('.p-ref__info dl')
@@ -120,13 +131,14 @@ class DigimonParser:
             if profile_elem:
                 data["profile"]["japanese"] = profile_elem.text.strip()
                 
-            # 5. Extract related Digimon
+            # 5. Extract related Digimon with their images
             related_section = soup.select('.p-refRelationList')
             
             for item in related_section:
                 link = item.select_one('.p-refRelationList__content')
                 name_elem = item.select_one('.p-refRelationList__name')
                 type_elem = item.select_one('.p-refRelationList__type')
+                img_elem = item.select_one('.c-thumb img')
                 
                 if link and name_elem:
                     href = link.get('href', '')
@@ -141,6 +153,17 @@ class DigimonParser:
                         "directory_name": related_dir_name,
                         "type_info": type_elem.text.strip() if type_elem else None
                     }
+                    
+                    # Extract thumbnail image if present
+                    if img_elem and img_elem.get('src'):
+                        img_src = img_elem['src']
+                        if img_src.startswith('../'):
+                            img_src = img_src.lstrip('../')
+                            related_data["image_url"] = f"https://digimon.net/{img_src}"
+                        elif img_src.startswith('http'):
+                            related_data["image_url"] = img_src
+                        else:
+                            related_data["image_url"] = f"https://digimon.net/{img_src.lstrip('/')}"
                     
                     data["related_digimon"].append(related_data)
                     

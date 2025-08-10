@@ -132,6 +132,7 @@ def prune(confirm, keep_cache, keep_raw, include_neo4j):
     - Processed JSON files
     - Translated data
     - Cache files
+    - Results and analysis outputs
     
     \b
     Examples:
@@ -182,6 +183,13 @@ def prune(confirm, keep_cache, keep_raw, include_neo4j):
             size = sum(f.stat().st_size for f in cache.rglob("*") if f.is_file())
             prune_targets.append(("Cache files", cache, size))
             total_size += size
+    
+    # Add results directory
+    results_dir = Path("results")
+    if results_dir.exists():
+        size = sum(f.stat().st_size for f in results_dir.rglob("*") if f.is_file())
+        prune_targets.append(("Results and analysis", results_dir, size))
+        total_size += size
     
     # Check if Neo4j should be included
     if include_neo4j:

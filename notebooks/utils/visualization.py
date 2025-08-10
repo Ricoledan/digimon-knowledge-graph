@@ -71,12 +71,24 @@ LEVEL_COLORS = {
 }
 
 
-def save_figure(fig, filename: str, formats: Optional[List[str]] = None):
-    """Save figure in multiple formats."""
+def save_figure(fig, filename: str, formats: Optional[List[str]] = None, notebook_name: Optional[str] = None):
+    """Save figure in multiple formats.
+    
+    Args:
+        fig: Figure object (matplotlib or plotly)
+        filename: Base filename without extension
+        formats: List of formats to save (default from config)
+        notebook_name: Name of the notebook (for organizing outputs)
+    """
     if formats is None:
         formats = config['export']['figure_formats']
     
-    figures_dir = Path(config['paths']['figures_dir'])
+    # Use notebook-specific directory if provided
+    if notebook_name:
+        figures_dir = Path(config['paths']['results_dir']) / notebook_name / 'figures'
+    else:
+        figures_dir = Path(config['paths']['figures_dir'])
+    
     figures_dir.mkdir(parents=True, exist_ok=True)
     
     for fmt in formats:

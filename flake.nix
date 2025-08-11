@@ -67,36 +67,31 @@
             echo "Digimon Knowledge Graph Development Environment"
             echo "Python: $(python --version)"
             echo "Neo4j: $(neo4j --version 2>/dev/null || echo 'Use docker-compose')"
-            echo ""
-            echo "Installing additional Python packages from requirements.txt..."
-            echo ""
             
             # Create virtual environment if it doesn't exist
             if [ ! -d .venv ]; then
               echo "Creating Python virtual environment..."
               python -m venv .venv
+              echo "Run 'source .venv/bin/activate && pip install -r requirements.txt' to install dependencies"
+            else
+              # Just activate the venv, don't install every time
+              source .venv/bin/activate
             fi
             
-            # Activate virtual environment
-            source .venv/bin/activate
-            
-            # Install packages from requirements.txt
-            pip install -r requirements.txt --quiet
-            
-            echo "Quick start:"
-            echo "  docker-compose up -d    # Start Neo4j"
-            echo "  python -m pytest        # Run tests"
-            echo "  jupyter notebook        # Start Jupyter"
-            echo ""
-            
             # Create .env file if it doesn't exist
-            if [ ! -f .env ]; then
+            if [ ! -f .env ] && [ -f .env.example ]; then
               cp .env.example .env
               echo "Created .env file from template"
             fi
             
             # Set up Python path
             export PYTHONPATH="$PWD/src:$PYTHONPATH"
+            
+            echo ""
+            echo "Quick start:"
+            echo "  ygg start               # Start Neo4j"
+            echo "  ygg status              # Check pipeline status"
+            echo "  jupyter notebook        # Start Jupyter"
           '';
         };
       });

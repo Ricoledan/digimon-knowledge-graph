@@ -112,7 +112,6 @@ The system follows a modular pipeline architecture where each component has a sp
 This diagram shows the main scripts and their relationships in the project.
 
 ```mermaid
-%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#f9fafb', 'primaryBorderColor':'#60a5fa', 'lineColor':'#3b82f6', 'secondaryColor':'#059669', 'tertiaryColor':'#374151', 'background':'#111827', 'mainBkg':'#1f2937', 'secondBkg':'#374151', 'tertiaryBkg':'#4b5563', 'primaryBorderColor':'#60a5fa', 'secondaryBorderColor':'#10b981', 'tertiaryBorderColor':'#6366f1', 'clusterBkg':'#1f2937', 'clusterBorder':'#60a5fa', 'fontFamily':'monospace'}}}%%
 graph LR
     subgraph SC["Scripts"]
         A[setup.sh]
@@ -130,18 +129,20 @@ graph LR
     B --> E
     C --> F
     
-    classDef script fill:#3b82f6,stroke:#60a5fa,stroke-width:2px,color:#f9fafb
-    classDef action fill:#10b981,stroke:#34d399,stroke-width:2px,color:#f9fafb
-    
-    class A,B,C script
-    class D,E,F action
+    style SC fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style AC fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style A fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style B fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style C fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style D fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style E fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style F fill:#444,stroke:#666,stroke-width:1px,color:#ccc
 ```
 
 ### Data Flow Diagram
 This diagram shows how data flows through the system from source to analysis, including all intermediate storage layers.
 
 ```mermaid
-%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#f9fafb', 'primaryBorderColor':'#60a5fa', 'lineColor':'#3b82f6', 'secondaryColor':'#059669', 'tertiaryColor':'#374151', 'background':'#111827', 'mainBkg':'#1f2937', 'secondBkg':'#374151', 'tertiaryBkg':'#4b5563', 'primaryBorderColor':'#60a5fa', 'secondaryBorderColor':'#10b981', 'tertiaryBorderColor':'#6366f1', 'clusterBkg':'#1f2937', 'clusterBorder':'#60a5fa', 'fontFamily':'monospace'}}}%%
 flowchart LR
     subgraph DS["Data Sources"]
         A[digimon.net/reference]
@@ -177,26 +178,27 @@ flowchart LR
     I -->|Query| J
     J -->|Generate| K
     
-    classDef source fill:#8b5cf6,stroke:#a78bfa,stroke-width:2px,color:#f9fafb
-    classDef storage fill:#10b981,stroke:#34d399,stroke-width:2px,color:#f9fafb
-    classDef output fill:#3b82f6,stroke:#60a5fa,stroke-width:2px,color:#f9fafb
-    classDef pipeline fill:#f59e0b,stroke:#fbbf24,stroke-width:2px,color:#1f2937
-    classDef files fill:#6b7280,stroke:#9ca3af,stroke-width:2px,color:#f9fafb
-    classDef analysis fill:#ef4444,stroke:#f87171,stroke-width:2px,color:#f9fafb
-    
-    class A source
-    class I storage
-    class K output
-    class B,C,D,E pipeline
-    class F,G,H files
-    class J analysis
+    style DS fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style DP fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style ST fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style AN fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style A fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style B fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style C fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style D fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style E fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style F fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style G fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style H fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style I fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style J fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style K fill:#444,stroke:#666,stroke-width:1px,color:#ccc
 ```
 
 ### System Architecture
 This diagram illustrates the modular architecture showing how the CLI interface connects to core modules and infrastructure.
 
 ```mermaid
-%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#f9fafb', 'primaryBorderColor':'#60a5fa', 'lineColor':'#3b82f6', 'secondaryColor':'#059669', 'tertiaryColor':'#374151', 'background':'#111827', 'mainBkg':'#1f2937', 'secondBkg':'#374151', 'tertiaryBkg':'#4b5563', 'primaryBorderColor':'#60a5fa', 'secondaryBorderColor':'#10b981', 'tertiaryBorderColor':'#6366f1', 'clusterBkg':'#1f2937', 'clusterBorder':'#60a5fa', 'fontFamily':'monospace'}}}%%
 graph TB
     subgraph CI["CLI Interface"]
         CLI[ygg CLI<br/>Click Framework]
@@ -227,15 +229,17 @@ graph TB
     LDR --> NEO
     ANL --> NEO
     
-    classDef cli fill:#f59e0b,stroke:#fbbf24,stroke-width:2px,color:#1f2937
-    classDef neo fill:#10b981,stroke:#34d399,stroke-width:2px,color:#f9fafb
-    classDef module fill:#4b5563,stroke:#6b7280,stroke-width:2px,color:#f9fafb
-    classDef files fill:#6b7280,stroke:#9ca3af,stroke-width:2px,color:#f9fafb
-    
-    class CLI cli
-    class NEO neo
-    class SCR,PRS,TRN,LDR,ANL module
-    class FS files
+    style CI fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style CM fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style IN fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style CLI fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style SCR fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style PRS fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style TRN fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style LDR fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style ANL fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style NEO fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style FS fill:#444,stroke:#666,stroke-width:1px,color:#ccc
 ```
 
 ### Key Technologies
@@ -325,7 +329,6 @@ Translations provided:
 ### Graph Schema Diagram
 
 ```mermaid
-%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#f9fafb', 'primaryBorderColor':'#60a5fa', 'lineColor':'#3b82f6', 'secondaryColor':'#059669', 'tertiaryColor':'#374151', 'background':'#111827', 'mainBkg':'#1f2937', 'secondBkg':'#374151', 'tertiaryBkg':'#4b5563', 'primaryBorderColor':'#60a5fa', 'secondaryBorderColor':'#10b981', 'tertiaryBorderColor':'#6366f1', 'clusterBkg':'#1f2937', 'clusterBorder':'#60a5fa', 'fontFamily':'monospace'}}}%%
 graph TD
     subgraph NT["Node Types"]
         D[Digimon<br/>• name_jp<br/>• name_en<br/>• profile<br/>• image_url]
@@ -348,25 +351,20 @@ graph TD
         D2 -.->|SHARES_MOVE| D3
     end
     
-    classDef digimon fill:#f59e0b,stroke:#fbbf24,stroke-width:3px,color:#1f2937
-    classDef level fill:#3b82f6,stroke:#60a5fa,stroke-width:2px,color:#f9fafb
-    classDef type fill:#8b5cf6,stroke:#a78bfa,stroke-width:2px,color:#f9fafb
-    classDef attribute fill:#10b981,stroke:#34d399,stroke-width:2px,color:#f9fafb
-    classDef move fill:#ef4444,stroke:#f87171,stroke-width:2px,color:#f9fafb
-    classDef similarity fill:#4b5563,stroke:#6b7280,stroke-width:2px,color:#f9fafb
-    
-    class D digimon
-    class L level
-    class T type
-    class A attribute
-    class M move
-    class D2,D3 similarity
+    style NT fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style SR fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style D fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style L fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style T fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style A fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style M fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style D2 fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style D3 fill:#444,stroke:#666,stroke-width:1px,color:#ccc
 ```
 
 ### Node Properties
 
 ```mermaid
-%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#f9fafb', 'primaryBorderColor':'#60a5fa', 'lineColor':'#3b82f6', 'secondaryColor':'#059669', 'tertiaryColor':'#374151', 'background':'#111827', 'mainBkg':'#1f2937', 'secondBkg':'#374151', 'tertiaryBkg':'#4b5563', 'primaryBorderColor':'#60a5fa', 'secondaryBorderColor':'#10b981', 'tertiaryBorderColor':'#6366f1', 'clusterBkg':'#1f2937', 'clusterBorder':'#60a5fa', 'fontFamily':'monospace'}}}%%
 classDiagram
     class Digimon {
         +String name_jp

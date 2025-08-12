@@ -99,7 +99,11 @@ def save_figure(fig, filename: str, formats: Optional[List[str]] = None, noteboo
             if fmt == 'html':
                 fig.write_html(str(filepath))
             elif fmt == 'png':
-                fig.write_image(str(filepath))
+                try:
+                    fig.write_image(str(filepath))
+                except (ValueError, ImportError) as e:
+                    print(f"Warning: Could not save PNG image due to kaleido issue. Skipping PNG export.")
+                    continue
         print(f"Saved: {filepath}")
 
 

@@ -112,7 +112,7 @@ The system follows a modular pipeline architecture where each component has a sp
 This diagram shows the main scripts and their relationships in the project.
 
 ```mermaid
-%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1a1a1a', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C0000', 'lineColor':'#F8B229', 'secondaryColor':'#006100', 'tertiaryColor':'#2c3e50', 'background':'#1a1a1a', 'mainBkg':'#1a1a1a', 'secondBkg':'#2c3e50', 'tertiaryBkg':'#34495e', 'primaryBorderColor':'#fff', 'secondaryBorderColor':'#fff', 'tertiaryBorderColor':'#fff', 'clusterBkg':'#2c3e50', 'clusterBorder':'#fff', 'fontFamily':'monospace'}}}%%
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#f9fafb', 'primaryBorderColor':'#60a5fa', 'lineColor':'#3b82f6', 'secondaryColor':'#059669', 'tertiaryColor':'#374151', 'background':'#111827', 'mainBkg':'#1f2937', 'secondBkg':'#374151', 'tertiaryBkg':'#4b5563', 'primaryBorderColor':'#60a5fa', 'secondaryBorderColor':'#10b981', 'tertiaryBorderColor':'#6366f1', 'clusterBkg':'#1f2937', 'clusterBorder':'#60a5fa', 'fontFamily':'monospace'}}}%%
 graph LR
     subgraph SC["Scripts"]
         A[setup.sh]
@@ -130,8 +130,8 @@ graph LR
     B --> E
     C --> F
     
-    classDef script fill:#2c3e50,stroke:#fff,stroke-width:2px,color:#fff
-    classDef action fill:#7f8c8d,stroke:#fff,stroke-width:1px,color:#fff
+    classDef script fill:#3b82f6,stroke:#60a5fa,stroke-width:2px,color:#f9fafb
+    classDef action fill:#10b981,stroke:#34d399,stroke-width:2px,color:#f9fafb
     
     class A,B,C script
     class D,E,F action
@@ -141,7 +141,7 @@ graph LR
 This diagram shows how data flows through the system from source to analysis, including all intermediate storage layers.
 
 ```mermaid
-%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1a1a1a', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C0000', 'lineColor':'#F8B229', 'secondaryColor':'#006100', 'tertiaryColor':'#2c3e50', 'background':'#1a1a1a', 'mainBkg':'#1a1a1a', 'secondBkg':'#2c3e50', 'tertiaryBkg':'#34495e', 'primaryBorderColor':'#fff', 'secondaryBorderColor':'#fff', 'tertiaryBorderColor':'#fff', 'clusterBkg':'#2c3e50', 'clusterBorder':'#fff', 'fontFamily':'monospace'}}}%%
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#f9fafb', 'primaryBorderColor':'#60a5fa', 'lineColor':'#3b82f6', 'secondaryColor':'#059669', 'tertiaryColor':'#374151', 'background':'#111827', 'mainBkg':'#1f2937', 'secondBkg':'#374151', 'tertiaryBkg':'#4b5563', 'primaryBorderColor':'#60a5fa', 'secondaryBorderColor':'#10b981', 'tertiaryBorderColor':'#6366f1', 'clusterBkg':'#1f2937', 'clusterBorder':'#60a5fa', 'fontFamily':'monospace'}}}%%
 flowchart LR
     subgraph DS["Data Sources"]
         A[digimon.net/reference]
@@ -177,12 +177,12 @@ flowchart LR
     I -->|Query| J
     J -->|Generate| K
     
-    classDef source fill:#9b59b6,stroke:#fff,stroke-width:2px,color:#fff
-    classDef storage fill:#27ae60,stroke:#fff,stroke-width:2px,color:#fff
-    classDef output fill:#3498db,stroke:#fff,stroke-width:2px,color:#fff
-    classDef pipeline fill:#f39c12,stroke:#fff,stroke-width:1px,color:#fff
-    classDef files fill:#7f8c8d,stroke:#fff,stroke-width:1px,color:#fff
-    classDef analysis fill:#e74c3c,stroke:#fff,stroke-width:1px,color:#fff
+    classDef source fill:#8b5cf6,stroke:#a78bfa,stroke-width:2px,color:#f9fafb
+    classDef storage fill:#10b981,stroke:#34d399,stroke-width:2px,color:#f9fafb
+    classDef output fill:#3b82f6,stroke:#60a5fa,stroke-width:2px,color:#f9fafb
+    classDef pipeline fill:#f59e0b,stroke:#fbbf24,stroke-width:2px,color:#1f2937
+    classDef files fill:#6b7280,stroke:#9ca3af,stroke-width:2px,color:#f9fafb
+    classDef analysis fill:#ef4444,stroke:#f87171,stroke-width:2px,color:#f9fafb
     
     class A source
     class I storage
@@ -196,7 +196,7 @@ flowchart LR
 This diagram illustrates the modular architecture showing how the CLI interface connects to core modules and infrastructure.
 
 ```mermaid
-%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1a1a1a', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C0000', 'lineColor':'#F8B229', 'secondaryColor':'#006100', 'tertiaryColor':'#2c3e50', 'background':'#1a1a1a', 'mainBkg':'#1a1a1a', 'secondBkg':'#2c3e50', 'tertiaryBkg':'#34495e', 'primaryBorderColor':'#fff', 'secondaryBorderColor':'#fff', 'tertiaryBorderColor':'#fff', 'clusterBkg':'#2c3e50', 'clusterBorder':'#fff', 'fontFamily':'monospace'}}}%%
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#f9fafb', 'primaryBorderColor':'#60a5fa', 'lineColor':'#3b82f6', 'secondaryColor':'#059669', 'tertiaryColor':'#374151', 'background':'#111827', 'mainBkg':'#1f2937', 'secondBkg':'#374151', 'tertiaryBkg':'#4b5563', 'primaryBorderColor':'#60a5fa', 'secondaryBorderColor':'#10b981', 'tertiaryBorderColor':'#6366f1', 'clusterBkg':'#1f2937', 'clusterBorder':'#60a5fa', 'fontFamily':'monospace'}}}%%
 graph TB
     subgraph CI["CLI Interface"]
         CLI[ygg CLI<br/>Click Framework]
@@ -227,10 +227,10 @@ graph TB
     LDR --> NEO
     ANL --> NEO
     
-    classDef cli fill:#f39c12,stroke:#fff,stroke-width:2px,color:#fff
-    classDef neo fill:#27ae60,stroke:#fff,stroke-width:2px,color:#fff
-    classDef module fill:#34495e,stroke:#fff,stroke-width:1px,color:#fff
-    classDef files fill:#7f8c8d,stroke:#fff,stroke-width:1px,color:#fff
+    classDef cli fill:#f59e0b,stroke:#fbbf24,stroke-width:2px,color:#1f2937
+    classDef neo fill:#10b981,stroke:#34d399,stroke-width:2px,color:#f9fafb
+    classDef module fill:#4b5563,stroke:#6b7280,stroke-width:2px,color:#f9fafb
+    classDef files fill:#6b7280,stroke:#9ca3af,stroke-width:2px,color:#f9fafb
     
     class CLI cli
     class NEO neo
@@ -325,7 +325,7 @@ Translations provided:
 ### Graph Schema Diagram
 
 ```mermaid
-%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1a1a1a', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C0000', 'lineColor':'#F8B229', 'secondaryColor':'#006100', 'tertiaryColor':'#2c3e50', 'background':'#1a1a1a', 'mainBkg':'#1a1a1a', 'secondBkg':'#2c3e50', 'tertiaryBkg':'#34495e', 'primaryBorderColor':'#fff', 'secondaryBorderColor':'#fff', 'tertiaryBorderColor':'#fff', 'clusterBkg':'#2c3e50', 'clusterBorder':'#fff', 'fontFamily':'monospace'}}}%%
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#f9fafb', 'primaryBorderColor':'#60a5fa', 'lineColor':'#3b82f6', 'secondaryColor':'#059669', 'tertiaryColor':'#374151', 'background':'#111827', 'mainBkg':'#1f2937', 'secondBkg':'#374151', 'tertiaryBkg':'#4b5563', 'primaryBorderColor':'#60a5fa', 'secondaryBorderColor':'#10b981', 'tertiaryBorderColor':'#6366f1', 'clusterBkg':'#1f2937', 'clusterBorder':'#60a5fa', 'fontFamily':'monospace'}}}%%
 graph TD
     subgraph NT["Node Types"]
         D[Digimon<br/>• name_jp<br/>• name_en<br/>• profile<br/>• image_url]
@@ -348,12 +348,12 @@ graph TD
         D2 -.->|SHARES_MOVE| D3
     end
     
-    classDef digimon fill:#f39c12,stroke:#fff,stroke-width:3px,color:#fff
-    classDef level fill:#3498db,stroke:#fff,stroke-width:2px,color:#fff
-    classDef type fill:#9b59b6,stroke:#fff,stroke-width:2px,color:#fff
-    classDef attribute fill:#27ae60,stroke:#fff,stroke-width:2px,color:#fff
-    classDef move fill:#e74c3c,stroke:#fff,stroke-width:2px,color:#fff
-    classDef similarity fill:#34495e,stroke:#fff,stroke-width:2px,color:#fff
+    classDef digimon fill:#f59e0b,stroke:#fbbf24,stroke-width:3px,color:#1f2937
+    classDef level fill:#3b82f6,stroke:#60a5fa,stroke-width:2px,color:#f9fafb
+    classDef type fill:#8b5cf6,stroke:#a78bfa,stroke-width:2px,color:#f9fafb
+    classDef attribute fill:#10b981,stroke:#34d399,stroke-width:2px,color:#f9fafb
+    classDef move fill:#ef4444,stroke:#f87171,stroke-width:2px,color:#f9fafb
+    classDef similarity fill:#4b5563,stroke:#6b7280,stroke-width:2px,color:#f9fafb
     
     class D digimon
     class L level
@@ -366,7 +366,7 @@ graph TD
 ### Node Properties
 
 ```mermaid
-%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1a1a1a', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C0000', 'lineColor':'#F8B229', 'secondaryColor':'#006100', 'tertiaryColor':'#2c3e50', 'background':'#1a1a1a', 'mainBkg':'#1a1a1a', 'secondBkg':'#2c3e50', 'tertiaryBkg':'#34495e', 'primaryBorderColor':'#fff', 'secondaryBorderColor':'#fff', 'tertiaryBorderColor':'#fff', 'clusterBkg':'#2c3e50', 'clusterBorder':'#fff', 'fontFamily':'monospace'}}}%%
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1f2937', 'primaryTextColor':'#f9fafb', 'primaryBorderColor':'#60a5fa', 'lineColor':'#3b82f6', 'secondaryColor':'#059669', 'tertiaryColor':'#374151', 'background':'#111827', 'mainBkg':'#1f2937', 'secondBkg':'#374151', 'tertiaryBkg':'#4b5563', 'primaryBorderColor':'#60a5fa', 'secondaryBorderColor':'#10b981', 'tertiaryBorderColor':'#6366f1', 'clusterBkg':'#1f2937', 'clusterBorder':'#60a5fa', 'fontFamily':'monospace'}}}%%
 classDiagram
     class Digimon {
         +String name_jp

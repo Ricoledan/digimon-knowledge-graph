@@ -147,17 +147,17 @@ flowchart LR
     I -->|Query| J
     J -->|Generate| K
     
-    style A fill:#e1bee7,stroke:#333,stroke-width:2px
-    style I fill:#c8e6c9,stroke:#333,stroke-width:2px
-    style K fill:#bbdefb,stroke:#333,stroke-width:2px
-    style B fill:#fff9c4,stroke:#333,stroke-width:1px
-    style C fill:#fff9c4,stroke:#333,stroke-width:1px
-    style D fill:#fff9c4,stroke:#333,stroke-width:1px
-    style E fill:#fff9c4,stroke:#333,stroke-width:1px
-    style F fill:#f5f5f5,stroke:#333,stroke-width:1px
-    style G fill:#f5f5f5,stroke:#333,stroke-width:1px
-    style H fill:#f5f5f5,stroke:#333,stroke-width:1px
-    style J fill:#ffccbc,stroke:#333,stroke-width:1px
+    style A fill:#9b59b6,stroke:#fff,stroke-width:2px,color:#fff
+    style I fill:#27ae60,stroke:#fff,stroke-width:2px,color:#fff
+    style K fill:#3498db,stroke:#fff,stroke-width:2px,color:#fff
+    style B fill:#f1c40f,stroke:#333,stroke-width:1px,color:#333
+    style C fill:#f1c40f,stroke:#333,stroke-width:1px,color:#333
+    style D fill:#f1c40f,stroke:#333,stroke-width:1px,color:#333
+    style E fill:#f1c40f,stroke:#333,stroke-width:1px,color:#333
+    style F fill:#ecf0f1,stroke:#333,stroke-width:1px,color:#333
+    style G fill:#ecf0f1,stroke:#333,stroke-width:1px,color:#333
+    style H fill:#ecf0f1,stroke:#333,stroke-width:1px,color:#333
+    style J fill:#e67e22,stroke:#fff,stroke-width:1px,color:#fff
 ```
 
 ### System Architecture
@@ -194,14 +194,14 @@ graph TB
     LDR --> NEO
     ANL --> NEO
     
-    style CLI fill:#fff9c4,stroke:#333,stroke-width:2px
-    style NEO fill:#c8e6c9,stroke:#333,stroke-width:2px
-    style SCR fill:#e1f5fe,stroke:#333,stroke-width:1px
-    style PRS fill:#e1f5fe,stroke:#333,stroke-width:1px
-    style TRN fill:#e1f5fe,stroke:#333,stroke-width:1px
-    style LDR fill:#e1f5fe,stroke:#333,stroke-width:1px
-    style ANL fill:#e1f5fe,stroke:#333,stroke-width:1px
-    style FS fill:#f5f5f5,stroke:#333,stroke-width:1px
+    style CLI fill:#f1c40f,stroke:#333,stroke-width:2px,color:#333
+    style NEO fill:#27ae60,stroke:#fff,stroke-width:2px,color:#fff
+    style SCR fill:#34495e,stroke:#fff,stroke-width:1px,color:#fff
+    style PRS fill:#34495e,stroke:#fff,stroke-width:1px,color:#fff
+    style TRN fill:#34495e,stroke:#fff,stroke-width:1px,color:#fff
+    style LDR fill:#34495e,stroke:#fff,stroke-width:1px,color:#fff
+    style ANL fill:#34495e,stroke:#fff,stroke-width:1px,color:#fff
+    style FS fill:#ecf0f1,stroke:#333,stroke-width:1px,color:#333
 ```
 
 ### Key Technologies
@@ -313,11 +313,13 @@ graph TD
         D2 -.->|SHARES_MOVE| D3
     end
     
-    style D fill:#ff9,stroke:#333,stroke-width:3px
-    style L fill:#9ff,stroke:#333,stroke-width:2px
-    style T fill:#f9f,stroke:#333,stroke-width:2px
-    style A fill:#9f9,stroke:#333,stroke-width:2px
-    style M fill:#f99,stroke:#333,stroke-width:2px
+    style D fill:#f39c12,stroke:#fff,stroke-width:3px,color:#fff
+    style L fill:#3498db,stroke:#fff,stroke-width:2px,color:#fff
+    style T fill:#9b59b6,stroke:#fff,stroke-width:2px,color:#fff
+    style A fill:#27ae60,stroke:#fff,stroke-width:2px,color:#fff
+    style M fill:#e74c3c,stroke:#fff,stroke-width:2px,color:#fff
+    style D2 fill:#34495e,stroke:#fff,stroke-width:2px,color:#fff
+    style D3 fill:#34495e,stroke:#fff,stroke-width:2px,color:#fff
 ```
 
 ### Node Properties
@@ -361,6 +363,12 @@ classDiagram
     Digimon "1" --> "1" Attribute : HAS_ATTRIBUTE
     Digimon "1" --> "*" Move : CAN_USE
     Digimon "*" --> "*" Digimon : RELATED_TO
+    
+    style Digimon fill:#f39c12,stroke:#fff,stroke-width:2px,color:#fff
+    style Level fill:#3498db,stroke:#fff,stroke-width:2px,color:#fff
+    style Type fill:#9b59b6,stroke:#fff,stroke-width:2px,color:#fff
+    style Attribute fill:#27ae60,stroke:#fff,stroke-width:2px,color:#fff
+    style Move fill:#e74c3c,stroke:#fff,stroke-width:2px,color:#fff
 ```
 
 ### Relationship Details

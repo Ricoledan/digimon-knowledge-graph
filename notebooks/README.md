@@ -30,26 +30,49 @@ The notebooks require the following packages:
    - Database connection verification
    - Basic statistics and distributions
    - Data quality assessment
+   - Type, attribute, and level distributions
 
-2. **02_network_analysis.ipynb**: Graph structure and metrics
-   - Centrality measures
-   - Network topology analysis
-   - Path and connectivity analysis
+2. **02_evolution_analysis.ipynb**: Evolution network analysis
+   - Evolution chains and pathways
+   - Type transitions through evolution
+   - Branching patterns and complexity
+   - Evolution network visualization
 
-3. **03_community_detection.ipynb**: Community and clustering analysis
-   - Community detection algorithms
-   - Cluster validation
-   - Evolution pattern analysis
+3. **03_type_attribute_correlation.ipynb**: Statistical correlation analysis
+   - Type-attribute associations
+   - Chi-square tests and Cramér's V
+   - Pattern mining with association rules
+   - Predictive analysis of attributes
 
-4. **04_evolution_patterns.ipynb**: Evolution chain analysis
-   - Evolution pathways
-   - Type transitions
-   - Level progression patterns
+4. **04_move_network_analysis.ipynb**: Special move analysis
+   - Move frequency and diversity
+   - Move-based clustering
+   - Move inheritance through evolution
+   - Co-occurrence network analysis
 
-5. **05_visualization_dashboard.ipynb**: Interactive visualizations
-   - Network visualizations
-   - Interactive dashboards
-   - Export-ready figures
+5. **05_community_detection.ipynb**: Graph clustering and communities
+   - Louvain community detection
+   - Label propagation algorithms
+   - Community characteristics
+   - Inter-community relationships
+
+6. **06_centrality_analysis.ipynb**: Network centrality measures
+   - Degree, betweenness, closeness centrality
+   - PageRank and eigenvector centrality
+   - Hub and authority scores
+   - Most influential Digimon
+
+7. **07_predictive_modeling.ipynb**: Machine learning models
+   - Type and attribute prediction
+   - Evolution prediction
+   - Feature importance analysis
+   - Model performance evaluation
+
+8. **08_recommendation_system.ipynb**: Similarity and recommendations
+   - Digimon similarity metrics
+   - Content-based recommendations
+   - Team composition suggestions
+   - Evolution path recommendations
 
 ## Running the Notebooks
 
@@ -68,7 +91,7 @@ The notebooks require the following packages:
    jupyter notebook
    ```
 
-4. Run notebooks in order (01 → 05) for best results
+4. Run notebooks in order (01 → 08) for best results
 
 ## Troubleshooting
 
@@ -79,7 +102,11 @@ If you encounter import errors:
 
 ## Output
 
-Results are saved to the `results/` directory:
-- `results/data/`: Data exports and statistics
-- `results/figures/`: Generated visualizations
-- `results/analysis/`: Analysis reports and findings
+Each notebook saves results to its own organized directory:
+- `results/{notebook_name}/data/`: Data exports and statistics
+- `results/{notebook_name}/figures/`: Generated visualizations
+
+For example:
+- `results/01_data_exploration/data/`: Graph statistics, distributions
+- `results/02_evolution_analysis/figures/`: Evolution network diagrams
+- `results/07_predictive_modeling/models/`: Trained ML models

@@ -20,8 +20,9 @@ nix develop
 # Install CLI 
 pip install -e .
 
-# Run everything
-ygg init
+# Start Neo4j and run pipeline
+ygg start
+ygg run
 ```
 
 This will:
@@ -29,7 +30,7 @@ This will:
 2. Scrape all Digimon data
 3. Parse and translate everything
 4. Load into Neo4j
-5. Run analysis
+5. (Run `ygg analyze` separately for analysis)
 
 ## Option 2: Step-by-Step Setup
 

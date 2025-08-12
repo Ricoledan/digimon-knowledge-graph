@@ -122,11 +122,12 @@ nix develop
 # Install the CLI
 pip install -e .
 
-# Run everything (first time setup)
-ygg init
+# Start Neo4j and run full pipeline
+ygg start
+ygg run
 ```
 
-That's it! The `ygg init` command starts Neo4j and runs the entire pipeline.
+That's it! These commands start Neo4j and run the entire pipeline.
 
 ## Prerequisites
 
@@ -215,8 +216,11 @@ nix develop
 # 3. Install the CLI tool
 pip install -e .
 
-# 4. Run everything (starts Neo4j + full pipeline)
-ygg init
+# 4. Start Neo4j
+ygg start
+
+# 5. Run the full pipeline
+ygg run
 ```
 
 ### Returning to the Project
@@ -270,7 +274,8 @@ ygg stop
 ygg prune --include-neo4j
 
 # Start fresh
-ygg init
+ygg start
+ygg run
 ```
 
 #### Scenario: Just want to explore the data
@@ -518,11 +523,10 @@ RETURN path;
 
 ### CLI Commands
 ```bash
-ygg init         # First time setup (Neo4j + full pipeline)
-ygg status       # Check pipeline progress
-ygg run          # Run complete pipeline
 ygg start        # Start Neo4j database
 ygg stop         # Stop Neo4j database
+ygg status       # Check pipeline progress
+ygg run          # Run complete pipeline
 ygg prune        # Clean up data files
 ygg prune --include-neo4j  # Clean data AND Neo4j
 ygg --help       # Show all commands
@@ -570,11 +574,11 @@ jupyter lab
 
 ### Essential Commands
 ```bash
-ygg init         # First time setup
-ygg status       # Check progress
-ygg run          # Run full pipeline
 ygg start        # Start Neo4j
 ygg stop         # Stop Neo4j
+ygg status       # Check progress
+ygg run          # Run full pipeline
+ygg prune        # Clean data files
 ```
 
 ### Pipeline Steps (in order)

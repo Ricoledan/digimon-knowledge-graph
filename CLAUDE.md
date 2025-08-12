@@ -80,22 +80,93 @@ ygg prune --include-neo4j  # Clean up data files AND Neo4j database
 
 ## Architecture
 
-### Data Flow
-1. **Scraper** → Fetches HTML pages from digimon.net/reference
-2. **Parser** → Extracts structured data from HTML
-3. **Translator** → Translates Japanese content to English
-4. **Loader** → Imports data into Neo4j graph database
-5. **Analyzer** → Performs network analysis and generates insights
+### Data Flow Diagram
+
+```mermaid
+flowchart LR
+    subgraph "Data Sources"
+        A[digimon.net/reference]
+    end
+    
+    subgraph "Data Pipeline"
+        B[Scraper<br/>BeautifulSoup4]
+        C[Parser<br/>HTML → JSON]
+        D[Translator<br/>JP → EN]
+        E[Loader<br/>JSON → Neo4j]
+    end
+    
+    subgraph "Storage"
+        F[(Raw HTML<br/>Files)]
+        G[(Parsed JSON<br/>Files)]
+        H[(Translated<br/>JSON)]
+        I[(Neo4j<br/>Graph DB)]
+    end
+    
+    subgraph "Analysis"
+        J[NetworkX<br/>Analyzer]
+        K[Notebooks<br/>& Visualizations]
+    end
+    
+    A -->|HTTP Requests| B
+    B -->|Save| F
+    F -->|Read| C
+    C -->|Save| G
+    G -->|Read| D
+    D -->|Cache| H
+    H -->|Read| E
+    E -->|Import| I
+    I -->|Query| J
+    J -->|Generate| K
+    
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style I fill:#9f9,stroke:#333,stroke-width:2px
+    style K fill:#99f,stroke:#333,stroke-width:2px
+```
+
+### System Architecture
+
+```mermaid
+graph TB
+    subgraph "CLI Interface"
+        CLI[ygg CLI<br/>Click Framework]
+    end
+    
+    subgraph "Core Modules"
+        SCR[Scraper Module<br/>• Rate Limiting<br/>• Async Support<br/>• Error Handling]
+        PRS[Parser Module<br/>• BeautifulSoup4<br/>• CSS Selectors<br/>• Data Extraction]
+        TRN[Translator Module<br/>• Google Translate<br/>• Caching System<br/>• Batch Processing]
+        LDR[Loader Module<br/>• Neo4j Driver<br/>• Schema Creation<br/>• Relationship Building]
+        ANL[Analyzer Module<br/>• NetworkX<br/>• Graph Algorithms<br/>• Statistics]
+    end
+    
+    subgraph "Infrastructure"
+        NEO[Neo4j Database<br/>Community Edition]
+        FS[File System<br/>• HTML Storage<br/>• JSON Storage<br/>• Cache Files]
+    end
+    
+    CLI --> SCR
+    CLI --> PRS
+    CLI --> TRN
+    CLI --> LDR
+    CLI --> ANL
+    
+    SCR --> FS
+    PRS --> FS
+    TRN --> FS
+    LDR --> NEO
+    ANL --> NEO
+    
+    style CLI fill:#ff9,stroke:#333,stroke-width:2px
+    style NEO fill:#9f9,stroke:#333,stroke-width:2px
+```
 
 ### Key Technologies
 - **Scraping**: BeautifulSoup4, requests, asyncio
 - **Translation**: googletrans (with caching)
 - **Database**: Neo4j Community Edition
 - **Analysis**: NetworkX, pandas, matplotlib
-
-### Graph Schema
-- **Nodes**: Digimon, Type, Attribute, Level, Move
-- **Relationships**: EVOLVES_FROM, HAS_TYPE, HAS_ATTRIBUTE, CAN_USE, SHARES_*
+- **CLI**: Click framework
+- **Data Processing**: JSON, pandas
 
 ## Important Configuration
 
@@ -173,23 +244,91 @@ Translations provided:
 
 ## Neo4j Graph Schema
 
-### Nodes
-- **Digimon**: Main entity with Japanese/English names, profile, etc.
-- **Level**: Evolution level (Baby, Rookie, Champion, Ultimate, Mega, etc.)
-- **Type**: Digimon type (Machine, Dragon, Beast, etc.)
-- **Attribute**: Vaccine, Virus, Data, Free, etc.
-- **Move**: Special moves/techniques
+### Graph Schema Diagram
 
-### Relationships
-- `(Digimon)-[:HAS_LEVEL]->(Level)`
-- `(Digimon)-[:HAS_TYPE]->(Type)`
-- `(Digimon)-[:HAS_ATTRIBUTE]->(Attribute)`
-- `(Digimon)-[:CAN_USE]->(Move)`
-- `(Digimon)-[:RELATED_TO]->(Digimon)`
-- `(Digimon)-[:SHARES_TYPE]->(Digimon)`
-- `(Digimon)-[:SHARES_LEVEL]->(Digimon)`
-- `(Digimon)-[:SHARES_ATTRIBUTE]->(Digimon)`
-- `(Digimon)-[:SHARES_MOVE]->(Digimon)`
+```mermaid
+graph TD
+    subgraph "Node Types"
+        D[Digimon<br/>• name_jp<br/>• name_en<br/>• profile<br/>• image_url]
+        L[Level<br/>• name<br/>• order]
+        T[Type<br/>• name]
+        A[Attribute<br/>• name]
+        M[Move<br/>• name<br/>• description]
+    end
+    
+    D -->|HAS_LEVEL| L
+    D -->|HAS_TYPE| T
+    D -->|HAS_ATTRIBUTE| A
+    D -->|CAN_USE| M
+    D -->|RELATED_TO| D
+    
+    subgraph "Similarity Relationships"
+        D2[Digimon] -.->|SHARES_TYPE| D3[Digimon]
+        D2 -.->|SHARES_LEVEL| D3
+        D2 -.->|SHARES_ATTRIBUTE| D3
+        D2 -.->|SHARES_MOVE| D3
+    end
+    
+    style D fill:#ff9,stroke:#333,stroke-width:3px
+    style L fill:#9ff,stroke:#333,stroke-width:2px
+    style T fill:#f9f,stroke:#333,stroke-width:2px
+    style A fill:#9f9,stroke:#333,stroke-width:2px
+    style M fill:#f99,stroke:#333,stroke-width:2px
+```
+
+### Node Properties
+
+```mermaid
+classDiagram
+    class Digimon {
+        +String name_jp
+        +String name_en
+        +String profile
+        +String profile_en
+        +String image_url
+        +List~String~ moves
+        +List~String~ related_digimon
+    }
+    
+    class Level {
+        +String name
+        +String name_en
+        +Integer order
+    }
+    
+    class Type {
+        +String name
+        +String name_en
+    }
+    
+    class Attribute {
+        +String name
+        +String name_en
+    }
+    
+    class Move {
+        +String name
+        +String name_en
+        +String description
+    }
+    
+    Digimon "1" --> "1" Level : HAS_LEVEL
+    Digimon "1" --> "*" Type : HAS_TYPE
+    Digimon "1" --> "1" Attribute : HAS_ATTRIBUTE
+    Digimon "1" --> "*" Move : CAN_USE
+    Digimon "*" --> "*" Digimon : RELATED_TO
+```
+
+### Relationship Details
+- **HAS_LEVEL**: Links Digimon to their evolution level
+- **HAS_TYPE**: Links Digimon to their types (can have multiple)
+- **HAS_ATTRIBUTE**: Links Digimon to their attribute (Vaccine/Virus/Data/Free)
+- **CAN_USE**: Links Digimon to their special moves
+- **RELATED_TO**: Direct relationships between Digimon
+- **SHARES_TYPE**: Auto-generated relationships for Digimon with same type
+- **SHARES_LEVEL**: Auto-generated relationships for Digimon at same level
+- **SHARES_ATTRIBUTE**: Auto-generated relationships for Digimon with same attribute
+- **SHARES_MOVE**: Auto-generated relationships for Digimon sharing moves
 
 ## Next Actions
 1. Run analysis notebooks to generate insights

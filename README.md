@@ -47,29 +47,83 @@ This project creates a searchable, analyzable network of all Digimon and their r
 ## Architecture
 
 ### System Architecture
+
+#### Data Flow Pipeline
+```mermaid
+flowchart LR
+    subgraph "Data Sources"
+        A[digimon.net/reference]
+    end
+    
+    subgraph "Data Pipeline"
+        B[Scraper<br/>BeautifulSoup4]
+        C[Parser<br/>HTML → JSON]
+        D[Translator<br/>JP → EN]
+        E[Loader<br/>JSON → Neo4j]
+    end
+    
+    subgraph "Storage"
+        F[(Raw HTML<br/>Files)]
+        G[(Parsed JSON<br/>Files)]
+        H[(Translated<br/>JSON)]
+        I[(Neo4j<br/>Graph DB)]
+    end
+    
+    subgraph "Analysis"
+        J[NetworkX<br/>Analyzer]
+        K[Notebooks<br/>& Visualizations]
+    end
+    
+    A -->|HTTP Requests| B
+    B -->|Save| F
+    F -->|Read| C
+    C -->|Save| G
+    G -->|Read| D
+    D -->|Cache| H
+    H -->|Read| E
+    E -->|Import| I
+    I -->|Query| J
+    J -->|Generate| K
+    
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style I fill:#9f9,stroke:#333,stroke-width:2px
+    style K fill:#99f,stroke:#333,stroke-width:2px
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│                 │     │                 │     │                 │
-│  digimon.net    │────▶│   Scraper       │────▶│  Raw HTML       │
-│  (Data Source)  │     │   (Async)       │     │  Storage        │
-│                 │     │                 │     │                 │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-                                                          │
-                                                          ▼
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│                 │     │                 │     │                 │
-│  Translation    │◀────│   Parser        │◀────│  Structured     │
-│  (Google API)   │     │   (BS4)         │     │  JSON Data      │
-│                 │     │                 │     │                 │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-                                │
-                                ▼
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│                 │     │                 │     │                 │
-│  Neo4j Graph    │◀────│   Loader        │     │   Analysis      │
-│  Database       │     │   (py2neo)      │────▶│   (NetworkX)    │
-│                 │     │                 │     │                 │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
+
+#### System Components
+```mermaid
+graph TB
+    subgraph "CLI Interface"
+        CLI[ygg CLI<br/>Click Framework]
+    end
+    
+    subgraph "Core Modules"
+        SCR[Scraper Module<br/>• Rate Limiting<br/>• Async Support<br/>• Error Handling]
+        PRS[Parser Module<br/>• BeautifulSoup4<br/>• CSS Selectors<br/>• Data Extraction]
+        TRN[Translator Module<br/>• Google Translate<br/>• Caching System<br/>• Batch Processing]
+        LDR[Loader Module<br/>• Neo4j Driver<br/>• Schema Creation<br/>• Relationship Building]
+        ANL[Analyzer Module<br/>• NetworkX<br/>• Graph Algorithms<br/>• Statistics]
+    end
+    
+    subgraph "Infrastructure"
+        NEO[Neo4j Database<br/>Community Edition]
+        FS[File System<br/>• HTML Storage<br/>• JSON Storage<br/>• Cache Files]
+    end
+    
+    CLI --> SCR
+    CLI --> PRS
+    CLI --> TRN
+    CLI --> LDR
+    CLI --> ANL
+    
+    SCR --> FS
+    PRS --> FS
+    TRN --> FS
+    LDR --> NEO
+    ANL --> NEO
+    
+    style CLI fill:#ff9,stroke:#333,stroke-width:2px
+    style NEO fill:#9f9,stroke:#333,stroke-width:2px
 ```
 
 ### Data Flow
@@ -439,7 +493,39 @@ NEO4J_PASSWORD=digimon123
 
 ## Data Model
 
-### Graph Schema
+### Neo4j Graph Schema
+
+```mermaid
+graph TD
+    subgraph "Node Types"
+        D[Digimon<br/>• name_jp<br/>• name_en<br/>• profile<br/>• image_url]
+        L[Level<br/>• name<br/>• order]
+        T[Type<br/>• name]
+        A[Attribute<br/>• name]
+        M[Move<br/>• name<br/>• description]
+    end
+    
+    D -->|HAS_LEVEL| L
+    D -->|HAS_TYPE| T
+    D -->|HAS_ATTRIBUTE| A
+    D -->|CAN_USE| M
+    D -->|RELATED_TO| D
+    
+    subgraph "Similarity Relationships"
+        D2[Digimon] -.->|SHARES_TYPE| D3[Digimon]
+        D2 -.->|SHARES_LEVEL| D3
+        D2 -.->|SHARES_ATTRIBUTE| D3
+        D2 -.->|SHARES_MOVE| D3
+    end
+    
+    style D fill:#ff9,stroke:#333,stroke-width:3px
+    style L fill:#9ff,stroke:#333,stroke-width:2px
+    style T fill:#f9f,stroke:#333,stroke-width:2px
+    style A fill:#9f9,stroke:#333,stroke-width:2px
+    style M fill:#f99,stroke:#333,stroke-width:2px
+```
+
+### Graph Schema Details
 ```
 Nodes:
 ├── Digimon (Primary Entity)

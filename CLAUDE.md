@@ -108,6 +108,35 @@ The system follows a modular pipeline architecture where each component has a sp
 └─────────────────┘     └─────────────────┘     └─────────────────┘
 ```
 
+### Scripts Overview
+This diagram shows the main scripts and their relationships in the project.
+
+```mermaid
+graph LR
+    subgraph "Scripts"
+        A[setup.sh]
+        B[sync-hm.sh]
+        C[update.sh]
+    end
+    
+    subgraph "Actions"
+        D[Initializes environment]
+        E[Activates Home Manager]
+        F[Updates dependencies]
+    end
+    
+    A --> D
+    B --> E
+    C --> F
+    
+    style A fill:#2c3e50,stroke:#fff,stroke-width:2px,color:#fff
+    style B fill:#2c3e50,stroke:#fff,stroke-width:2px,color:#fff
+    style C fill:#2c3e50,stroke:#fff,stroke-width:2px,color:#fff
+    style D fill:#7f8c8d,stroke:#fff,stroke-width:1px,color:#fff
+    style E fill:#7f8c8d,stroke:#fff,stroke-width:1px,color:#fff
+    style F fill:#7f8c8d,stroke:#fff,stroke-width:1px,color:#fff
+```
+
 ### Data Flow Diagram
 This diagram shows how data flows through the system from source to analysis, including all intermediate storage layers.
 

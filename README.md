@@ -81,25 +81,25 @@ This diagram shows how data flows through the system from source to analysis, in
 
 ```mermaid
 flowchart LR
-    subgraph "Data Sources"
+    subgraph DS["Data Sources"]
         A[digimon.net/reference]
     end
     
-    subgraph "Data Pipeline"
+    subgraph DP["Data Pipeline"]
         B[Scraper<br/>BeautifulSoup4]
         C[Parser<br/>HTML → JSON]
         D[Translator<br/>JP → EN]
         E[Loader<br/>JSON → Neo4j]
     end
     
-    subgraph "Storage"
+    subgraph ST["Storage"]
         F[(Raw HTML<br/>Files)]
         G[(Parsed JSON<br/>Files)]
         H[(Translated<br/>JSON)]
         I[(Neo4j<br/>Graph DB)]
     end
     
-    subgraph "Analysis"
+    subgraph AN["Analysis"]
         J[NetworkX<br/>Analyzer]
         K[Notebooks<br/>& Visualizations]
     end
@@ -115,17 +115,21 @@ flowchart LR
     I -->|Query| J
     J -->|Generate| K
     
-    style A fill:#e1bee7,stroke:#333,stroke-width:2px
-    style I fill:#c8e6c9,stroke:#333,stroke-width:2px
-    style K fill:#bbdefb,stroke:#333,stroke-width:2px
-    style B fill:#fff9c4,stroke:#333,stroke-width:1px
-    style C fill:#fff9c4,stroke:#333,stroke-width:1px
-    style D fill:#fff9c4,stroke:#333,stroke-width:1px
-    style E fill:#fff9c4,stroke:#333,stroke-width:1px
-    style F fill:#f5f5f5,stroke:#333,stroke-width:1px
-    style G fill:#f5f5f5,stroke:#333,stroke-width:1px
-    style H fill:#f5f5f5,stroke:#333,stroke-width:1px
-    style J fill:#ffccbc,stroke:#333,stroke-width:1px
+    style DS fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style DP fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style ST fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style AN fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style A fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style B fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style C fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style D fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style E fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style F fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style G fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style H fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style I fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style J fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style K fill:#444,stroke:#666,stroke-width:1px,color:#ccc
 ```
 
 #### System Components
@@ -133,11 +137,11 @@ This diagram illustrates the modular architecture showing how the CLI interface 
 
 ```mermaid
 graph TB
-    subgraph "CLI Interface"
+    subgraph CI["CLI Interface"]
         CLI[ygg CLI<br/>Click Framework]
     end
     
-    subgraph "Core Modules"
+    subgraph CM["Core Modules"]
         SCR[Scraper Module<br/>• Rate Limiting<br/>• Async Support<br/>• Error Handling]
         PRS[Parser Module<br/>• BeautifulSoup4<br/>• CSS Selectors<br/>• Data Extraction]
         TRN[Translator Module<br/>• Google Translate<br/>• Caching System<br/>• Batch Processing]
@@ -145,7 +149,7 @@ graph TB
         ANL[Analyzer Module<br/>• NetworkX<br/>• Graph Algorithms<br/>• Statistics]
     end
     
-    subgraph "Infrastructure"
+    subgraph IN["Infrastructure"]
         NEO[Neo4j Database<br/>Community Edition]
         FS[File System<br/>• HTML Storage<br/>• JSON Storage<br/>• Cache Files]
     end
@@ -162,14 +166,17 @@ graph TB
     LDR --> NEO
     ANL --> NEO
     
-    style CLI fill:#fff9c4,stroke:#333,stroke-width:2px
-    style NEO fill:#c8e6c9,stroke:#333,stroke-width:2px
-    style SCR fill:#e1f5fe,stroke:#333,stroke-width:1px
-    style PRS fill:#e1f5fe,stroke:#333,stroke-width:1px
-    style TRN fill:#e1f5fe,stroke:#333,stroke-width:1px
-    style LDR fill:#e1f5fe,stroke:#333,stroke-width:1px
-    style ANL fill:#e1f5fe,stroke:#333,stroke-width:1px
-    style FS fill:#f5f5f5,stroke:#333,stroke-width:1px
+    style CI fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style CM fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style IN fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style CLI fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style SCR fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style PRS fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style TRN fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style LDR fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style ANL fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style NEO fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style FS fill:#444,stroke:#666,stroke-width:1px,color:#ccc
 ```
 
 ### Data Flow
@@ -543,7 +550,7 @@ NEO4J_PASSWORD=digimon123
 
 ```mermaid
 graph TD
-    subgraph "Node Types"
+    subgraph NT["Node Types"]
         D[Digimon<br/>• name_jp<br/>• name_en<br/>• profile<br/>• image_url]
         L[Level<br/>• name<br/>• order]
         T[Type<br/>• name]
@@ -557,18 +564,22 @@ graph TD
     D -->|CAN_USE| M
     D -->|RELATED_TO| D
     
-    subgraph "Similarity Relationships"
+    subgraph SR["Similarity Relationships"]
         D2[Digimon] -.->|SHARES_TYPE| D3[Digimon]
         D2 -.->|SHARES_LEVEL| D3
         D2 -.->|SHARES_ATTRIBUTE| D3
         D2 -.->|SHARES_MOVE| D3
     end
     
-    style D fill:#ff9,stroke:#333,stroke-width:3px
-    style L fill:#9ff,stroke:#333,stroke-width:2px
-    style T fill:#f9f,stroke:#333,stroke-width:2px
-    style A fill:#9f9,stroke:#333,stroke-width:2px
-    style M fill:#f99,stroke:#333,stroke-width:2px
+    style NT fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style SR fill:#666,stroke:#333,stroke-width:2px,color:#fff
+    style D fill:#2a2a2a,stroke:#888,stroke-width:2px,color:#fff
+    style L fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style T fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style A fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style M fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style D2 fill:#444,stroke:#666,stroke-width:1px,color:#ccc
+    style D3 fill:#444,stroke:#666,stroke-width:1px,color:#ccc
 ```
 
 ### Graph Schema Details

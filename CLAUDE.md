@@ -80,7 +80,36 @@ ygg prune --include-neo4j  # Clean up data files AND Neo4j database
 
 ## Architecture
 
+### Overall Architecture
+The system follows a modular pipeline architecture where each component has a specific responsibility in the data processing flow.
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│                 │     │                 │     │                 │
+│  digimon.net    │────▶│   Scraper       │────▶│  Raw HTML       │
+│  (Data Source)  │     │   (Async)       │     │  Storage        │
+│                 │     │                 │     │                 │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+                                                          │
+                                                          ▼
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│                 │     │                 │     │                 │
+│  Translation    │◀────│   Parser        │◀────│  Structured     │
+│  (Google API)   │     │   (BS4)         │     │  JSON Data      │
+│                 │     │                 │     │                 │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+                                │
+                                ▼
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│                 │     │                 │     │                 │
+│  Neo4j Graph    │◀────│   Loader        │     │   Analysis      │
+│  Database       │     │   (py2neo)      │────▶│   (NetworkX)    │
+│                 │     │                 │     │                 │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+```
+
 ### Data Flow Diagram
+This diagram shows how data flows through the system from source to analysis, including all intermediate storage layers.
 
 ```mermaid
 flowchart LR
@@ -118,12 +147,21 @@ flowchart LR
     I -->|Query| J
     J -->|Generate| K
     
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style I fill:#9f9,stroke:#333,stroke-width:2px
-    style K fill:#99f,stroke:#333,stroke-width:2px
+    style A fill:#e1bee7,stroke:#333,stroke-width:2px
+    style I fill:#c8e6c9,stroke:#333,stroke-width:2px
+    style K fill:#bbdefb,stroke:#333,stroke-width:2px
+    style B fill:#fff9c4,stroke:#333,stroke-width:1px
+    style C fill:#fff9c4,stroke:#333,stroke-width:1px
+    style D fill:#fff9c4,stroke:#333,stroke-width:1px
+    style E fill:#fff9c4,stroke:#333,stroke-width:1px
+    style F fill:#f5f5f5,stroke:#333,stroke-width:1px
+    style G fill:#f5f5f5,stroke:#333,stroke-width:1px
+    style H fill:#f5f5f5,stroke:#333,stroke-width:1px
+    style J fill:#ffccbc,stroke:#333,stroke-width:1px
 ```
 
 ### System Architecture
+This diagram illustrates the modular architecture showing how the CLI interface connects to core modules and infrastructure.
 
 ```mermaid
 graph TB
@@ -156,8 +194,14 @@ graph TB
     LDR --> NEO
     ANL --> NEO
     
-    style CLI fill:#ff9,stroke:#333,stroke-width:2px
-    style NEO fill:#9f9,stroke:#333,stroke-width:2px
+    style CLI fill:#fff9c4,stroke:#333,stroke-width:2px
+    style NEO fill:#c8e6c9,stroke:#333,stroke-width:2px
+    style SCR fill:#e1f5fe,stroke:#333,stroke-width:1px
+    style PRS fill:#e1f5fe,stroke:#333,stroke-width:1px
+    style TRN fill:#e1f5fe,stroke:#333,stroke-width:1px
+    style LDR fill:#e1f5fe,stroke:#333,stroke-width:1px
+    style ANL fill:#e1f5fe,stroke:#333,stroke-width:1px
+    style FS fill:#f5f5f5,stroke:#333,stroke-width:1px
 ```
 
 ### Key Technologies

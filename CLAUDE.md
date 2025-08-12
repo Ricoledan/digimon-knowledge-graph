@@ -112,14 +112,15 @@ The system follows a modular pipeline architecture where each component has a sp
 This diagram shows the main scripts and their relationships in the project.
 
 ```mermaid
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1a1a1a', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C0000', 'lineColor':'#F8B229', 'secondaryColor':'#006100', 'tertiaryColor':'#2c3e50', 'background':'#1a1a1a', 'mainBkg':'#1a1a1a', 'secondBkg':'#2c3e50', 'tertiaryBkg':'#34495e', 'primaryBorderColor':'#fff', 'secondaryBorderColor':'#fff', 'tertiaryBorderColor':'#fff', 'clusterBkg':'#2c3e50', 'clusterBorder':'#fff', 'fontFamily':'monospace'}}}%%
 graph LR
-    subgraph "Scripts"
+    subgraph SC["Scripts"]
         A[setup.sh]
         B[sync-hm.sh]
         C[update.sh]
     end
     
-    subgraph "Actions"
+    subgraph AC["Actions"]
         D[Initializes environment]
         E[Activates Home Manager]
         F[Updates dependencies]
@@ -129,38 +130,38 @@ graph LR
     B --> E
     C --> F
     
-    style A fill:#2c3e50,stroke:#fff,stroke-width:2px,color:#fff
-    style B fill:#2c3e50,stroke:#fff,stroke-width:2px,color:#fff
-    style C fill:#2c3e50,stroke:#fff,stroke-width:2px,color:#fff
-    style D fill:#7f8c8d,stroke:#fff,stroke-width:1px,color:#fff
-    style E fill:#7f8c8d,stroke:#fff,stroke-width:1px,color:#fff
-    style F fill:#7f8c8d,stroke:#fff,stroke-width:1px,color:#fff
+    classDef script fill:#2c3e50,stroke:#fff,stroke-width:2px,color:#fff
+    classDef action fill:#7f8c8d,stroke:#fff,stroke-width:1px,color:#fff
+    
+    class A,B,C script
+    class D,E,F action
 ```
 
 ### Data Flow Diagram
 This diagram shows how data flows through the system from source to analysis, including all intermediate storage layers.
 
 ```mermaid
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1a1a1a', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C0000', 'lineColor':'#F8B229', 'secondaryColor':'#006100', 'tertiaryColor':'#2c3e50', 'background':'#1a1a1a', 'mainBkg':'#1a1a1a', 'secondBkg':'#2c3e50', 'tertiaryBkg':'#34495e', 'primaryBorderColor':'#fff', 'secondaryBorderColor':'#fff', 'tertiaryBorderColor':'#fff', 'clusterBkg':'#2c3e50', 'clusterBorder':'#fff', 'fontFamily':'monospace'}}}%%
 flowchart LR
-    subgraph "Data Sources"
+    subgraph DS["Data Sources"]
         A[digimon.net/reference]
     end
     
-    subgraph "Data Pipeline"
+    subgraph DP["Data Pipeline"]
         B[Scraper<br/>BeautifulSoup4]
         C[Parser<br/>HTML → JSON]
         D[Translator<br/>JP → EN]
         E[Loader<br/>JSON → Neo4j]
     end
     
-    subgraph "Storage"
+    subgraph ST["Storage"]
         F[(Raw HTML<br/>Files)]
         G[(Parsed JSON<br/>Files)]
         H[(Translated<br/>JSON)]
         I[(Neo4j<br/>Graph DB)]
     end
     
-    subgraph "Analysis"
+    subgraph AN["Analysis"]
         J[NetworkX<br/>Analyzer]
         K[Notebooks<br/>& Visualizations]
     end
@@ -176,29 +177,32 @@ flowchart LR
     I -->|Query| J
     J -->|Generate| K
     
-    style A fill:#9b59b6,stroke:#fff,stroke-width:2px,color:#fff
-    style I fill:#27ae60,stroke:#fff,stroke-width:2px,color:#fff
-    style K fill:#3498db,stroke:#fff,stroke-width:2px,color:#fff
-    style B fill:#f1c40f,stroke:#333,stroke-width:1px,color:#333
-    style C fill:#f1c40f,stroke:#333,stroke-width:1px,color:#333
-    style D fill:#f1c40f,stroke:#333,stroke-width:1px,color:#333
-    style E fill:#f1c40f,stroke:#333,stroke-width:1px,color:#333
-    style F fill:#ecf0f1,stroke:#333,stroke-width:1px,color:#333
-    style G fill:#ecf0f1,stroke:#333,stroke-width:1px,color:#333
-    style H fill:#ecf0f1,stroke:#333,stroke-width:1px,color:#333
-    style J fill:#e67e22,stroke:#fff,stroke-width:1px,color:#fff
+    classDef source fill:#9b59b6,stroke:#fff,stroke-width:2px,color:#fff
+    classDef storage fill:#27ae60,stroke:#fff,stroke-width:2px,color:#fff
+    classDef output fill:#3498db,stroke:#fff,stroke-width:2px,color:#fff
+    classDef pipeline fill:#f39c12,stroke:#fff,stroke-width:1px,color:#fff
+    classDef files fill:#7f8c8d,stroke:#fff,stroke-width:1px,color:#fff
+    classDef analysis fill:#e74c3c,stroke:#fff,stroke-width:1px,color:#fff
+    
+    class A source
+    class I storage
+    class K output
+    class B,C,D,E pipeline
+    class F,G,H files
+    class J analysis
 ```
 
 ### System Architecture
 This diagram illustrates the modular architecture showing how the CLI interface connects to core modules and infrastructure.
 
 ```mermaid
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1a1a1a', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C0000', 'lineColor':'#F8B229', 'secondaryColor':'#006100', 'tertiaryColor':'#2c3e50', 'background':'#1a1a1a', 'mainBkg':'#1a1a1a', 'secondBkg':'#2c3e50', 'tertiaryBkg':'#34495e', 'primaryBorderColor':'#fff', 'secondaryBorderColor':'#fff', 'tertiaryBorderColor':'#fff', 'clusterBkg':'#2c3e50', 'clusterBorder':'#fff', 'fontFamily':'monospace'}}}%%
 graph TB
-    subgraph "CLI Interface"
+    subgraph CI["CLI Interface"]
         CLI[ygg CLI<br/>Click Framework]
     end
     
-    subgraph "Core Modules"
+    subgraph CM["Core Modules"]
         SCR[Scraper Module<br/>• Rate Limiting<br/>• Async Support<br/>• Error Handling]
         PRS[Parser Module<br/>• BeautifulSoup4<br/>• CSS Selectors<br/>• Data Extraction]
         TRN[Translator Module<br/>• Google Translate<br/>• Caching System<br/>• Batch Processing]
@@ -206,7 +210,7 @@ graph TB
         ANL[Analyzer Module<br/>• NetworkX<br/>• Graph Algorithms<br/>• Statistics]
     end
     
-    subgraph "Infrastructure"
+    subgraph IN["Infrastructure"]
         NEO[Neo4j Database<br/>Community Edition]
         FS[File System<br/>• HTML Storage<br/>• JSON Storage<br/>• Cache Files]
     end
@@ -223,14 +227,15 @@ graph TB
     LDR --> NEO
     ANL --> NEO
     
-    style CLI fill:#f1c40f,stroke:#333,stroke-width:2px,color:#333
-    style NEO fill:#27ae60,stroke:#fff,stroke-width:2px,color:#fff
-    style SCR fill:#34495e,stroke:#fff,stroke-width:1px,color:#fff
-    style PRS fill:#34495e,stroke:#fff,stroke-width:1px,color:#fff
-    style TRN fill:#34495e,stroke:#fff,stroke-width:1px,color:#fff
-    style LDR fill:#34495e,stroke:#fff,stroke-width:1px,color:#fff
-    style ANL fill:#34495e,stroke:#fff,stroke-width:1px,color:#fff
-    style FS fill:#ecf0f1,stroke:#333,stroke-width:1px,color:#333
+    classDef cli fill:#f39c12,stroke:#fff,stroke-width:2px,color:#fff
+    classDef neo fill:#27ae60,stroke:#fff,stroke-width:2px,color:#fff
+    classDef module fill:#34495e,stroke:#fff,stroke-width:1px,color:#fff
+    classDef files fill:#7f8c8d,stroke:#fff,stroke-width:1px,color:#fff
+    
+    class CLI cli
+    class NEO neo
+    class SCR,PRS,TRN,LDR,ANL module
+    class FS files
 ```
 
 ### Key Technologies
@@ -320,8 +325,9 @@ Translations provided:
 ### Graph Schema Diagram
 
 ```mermaid
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1a1a1a', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C0000', 'lineColor':'#F8B229', 'secondaryColor':'#006100', 'tertiaryColor':'#2c3e50', 'background':'#1a1a1a', 'mainBkg':'#1a1a1a', 'secondBkg':'#2c3e50', 'tertiaryBkg':'#34495e', 'primaryBorderColor':'#fff', 'secondaryBorderColor':'#fff', 'tertiaryBorderColor':'#fff', 'clusterBkg':'#2c3e50', 'clusterBorder':'#fff', 'fontFamily':'monospace'}}}%%
 graph TD
-    subgraph "Node Types"
+    subgraph NT["Node Types"]
         D[Digimon<br/>• name_jp<br/>• name_en<br/>• profile<br/>• image_url]
         L[Level<br/>• name<br/>• order]
         T[Type<br/>• name]
@@ -335,25 +341,32 @@ graph TD
     D -->|CAN_USE| M
     D -->|RELATED_TO| D
     
-    subgraph "Similarity Relationships"
+    subgraph SR["Similarity Relationships"]
         D2[Digimon] -.->|SHARES_TYPE| D3[Digimon]
         D2 -.->|SHARES_LEVEL| D3
         D2 -.->|SHARES_ATTRIBUTE| D3
         D2 -.->|SHARES_MOVE| D3
     end
     
-    style D fill:#f39c12,stroke:#fff,stroke-width:3px,color:#fff
-    style L fill:#3498db,stroke:#fff,stroke-width:2px,color:#fff
-    style T fill:#9b59b6,stroke:#fff,stroke-width:2px,color:#fff
-    style A fill:#27ae60,stroke:#fff,stroke-width:2px,color:#fff
-    style M fill:#e74c3c,stroke:#fff,stroke-width:2px,color:#fff
-    style D2 fill:#34495e,stroke:#fff,stroke-width:2px,color:#fff
-    style D3 fill:#34495e,stroke:#fff,stroke-width:2px,color:#fff
+    classDef digimon fill:#f39c12,stroke:#fff,stroke-width:3px,color:#fff
+    classDef level fill:#3498db,stroke:#fff,stroke-width:2px,color:#fff
+    classDef type fill:#9b59b6,stroke:#fff,stroke-width:2px,color:#fff
+    classDef attribute fill:#27ae60,stroke:#fff,stroke-width:2px,color:#fff
+    classDef move fill:#e74c3c,stroke:#fff,stroke-width:2px,color:#fff
+    classDef similarity fill:#34495e,stroke:#fff,stroke-width:2px,color:#fff
+    
+    class D digimon
+    class L level
+    class T type
+    class A attribute
+    class M move
+    class D2,D3 similarity
 ```
 
 ### Node Properties
 
 ```mermaid
+%%{init: {'theme':'dark', 'themeVariables': { 'primaryColor':'#1a1a1a', 'primaryTextColor':'#fff', 'primaryBorderColor':'#7C0000', 'lineColor':'#F8B229', 'secondaryColor':'#006100', 'tertiaryColor':'#2c3e50', 'background':'#1a1a1a', 'mainBkg':'#1a1a1a', 'secondBkg':'#2c3e50', 'tertiaryBkg':'#34495e', 'primaryBorderColor':'#fff', 'secondaryBorderColor':'#fff', 'tertiaryBorderColor':'#fff', 'clusterBkg':'#2c3e50', 'clusterBorder':'#fff', 'fontFamily':'monospace'}}}%%
 classDiagram
     class Digimon {
         +String name_jp
@@ -392,12 +405,6 @@ classDiagram
     Digimon "1" --> "1" Attribute : HAS_ATTRIBUTE
     Digimon "1" --> "*" Move : CAN_USE
     Digimon "*" --> "*" Digimon : RELATED_TO
-    
-    style Digimon fill:#f39c12,stroke:#fff,stroke-width:2px,color:#fff
-    style Level fill:#3498db,stroke:#fff,stroke-width:2px,color:#fff
-    style Type fill:#9b59b6,stroke:#fff,stroke-width:2px,color:#fff
-    style Attribute fill:#27ae60,stroke:#fff,stroke-width:2px,color:#fff
-    style Move fill:#e74c3c,stroke:#fff,stroke-width:2px,color:#fff
 ```
 
 ### Relationship Details

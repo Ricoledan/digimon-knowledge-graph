@@ -749,14 +749,6 @@ ygg db-status           # Check database
 - `data/translated/` - English data
 - `data/cache/translations.json` - Translation cache
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
-
 ## License
 
 MIT License - see LICENSE file
